@@ -9,4 +9,5 @@ public interface BookRepository {
     List<Book> findAllBooks();
     Optional<Book> findBookById(Long id);
     Optional<Book> findBookByIsbn(String isbn);
+    void delete(Book book);
 }

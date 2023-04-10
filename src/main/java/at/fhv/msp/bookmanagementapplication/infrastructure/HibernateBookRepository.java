@@ -37,4 +37,9 @@ public class HibernateBookRepository implements BookRepository {
 
         return query.getResultStream().findFirst();
     }
+
+    @Override
+    public void delete(Book book) {
+        this.em.remove(book);
+    }
 }

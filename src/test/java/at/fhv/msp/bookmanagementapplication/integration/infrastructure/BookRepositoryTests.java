@@ -13,8 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -125,5 +124,19 @@ public class BookRepositoryTests {
         assertEquals(bookExpected.getPublicationDate(), bookActual.getPublicationDate());
         assertEquals(bookExpected.getPrice(), bookActual.getPrice());
         assertEquals(bookExpected.getGenre(), bookActual.getGenre());
+    }
+
+    @Test
+    void given_book_when_delete_then_bookIsDeleted() {
+        // given
+        Book book = bookRepository.findBookById(100L).get();
+
+        // when
+        bookRepository.delete(book);
+        em.flush();
+
+        // then
+        Optional<Book> bookOpt = bookRepository.findBookById(book.getBookId());
+        assertFalse(bookOpt.isPresent());
     }
 }

@@ -10,4 +10,5 @@ public interface BookService {
     List<BookDto> getAllBooks();
     BookDto getBookById(Long id) throws BookNotFoundException;
     BookDto getBookByIsbn(String isbn) throws BookNotFoundException;
+    BookDto deleteBook(Long id) throws BookNotFoundException;
 }

@@ -5,6 +5,7 @@ import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFou
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,5 +34,12 @@ public class BookRestController {
     public ResponseEntity<BookDto> getBookById(@PathVariable Long id) throws BookNotFoundException {
         BookDto bookDto = bookService.getBookById(id);
         return ResponseEntity.ok().body(bookDto);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<BookDto> deleteBook(@PathVariable Long id) throws BookNotFoundException {
+        BookDto deletedBook = bookService.deleteBook(id);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(deletedBook);
     }
 }
