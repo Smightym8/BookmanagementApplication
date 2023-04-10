@@ -6,6 +6,7 @@ import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFou
 import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
+import at.fhv.msp.bookmanagementapplication.application.dto.book.BookUpdateDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
 import jakarta.transaction.Transactional;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,6 +47,31 @@ public class BookServiceImpl implements BookService {
         );
 
         return bookDtoFromBook(book);
+    }
+
+    @Override
+    @Transactional
+    public BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) throws BookNotFoundException, IsbnAlreadyExistsException {
+        Book bookToBeUpdated = bookRepository.findBookById(id).orElseThrow(
+                () -> new BookNotFoundException("Book with id " + id + " not found")
+        );
+
+        // Check if there is already a book with provided isbn and it is not the book to be updated
+        Optional<Book> bookForProvidedIsbn = bookRepository.findBookByIsbn(bookUpdateDto.isbn());
+
+        if(bookForProvidedIsbn.isPresent() && !Objects.equals(bookToBeUpdated.getIsbn(), bookUpdateDto.isbn())) {
+            throw new IsbnAlreadyExistsException("There is already a book with isbn " + bookUpdateDto.isbn());
+        }
+
+        bookToBeUpdated.update(
+                bookToBeUpdated.getIsbn(),
+                bookUpdateDto.title(),
+                bookUpdateDto.publicationDate(),
+                bookUpdateDto.price(),
+                bookUpdateDto.genre()
+        );
+
+        return bookDtoFromBook(bookToBeUpdated);
     }
 
     @Override

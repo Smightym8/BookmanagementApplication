@@ -5,6 +5,7 @@ import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFou
 import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
+import at.fhv.msp.bookmanagementapplication.application.dto.book.BookUpdateDto;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +56,12 @@ public class BookRestController {
                 .buildAndExpand(createdBookId).toUri();
 
         return ResponseEntity.created(location).build();
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<BookDto> updateBook(@PathVariable Long id, @RequestBody BookUpdateDto bookUpdateDto) throws BookNotFoundException, IsbnAlreadyExistsException {
+        BookDto updatedBook = bookService.updateBook(id, bookUpdateDto);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(updatedBook);
     }
 }
