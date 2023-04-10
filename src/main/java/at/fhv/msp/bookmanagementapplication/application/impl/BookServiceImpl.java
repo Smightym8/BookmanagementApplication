@@ -50,6 +50,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) throws BookNotFoundException, IsbnAlreadyExistsException {
         Book bookToBeUpdated = bookRepository.findBookById(id).orElseThrow(
                 () -> new BookNotFoundException("Book with id " + id + " not found")
