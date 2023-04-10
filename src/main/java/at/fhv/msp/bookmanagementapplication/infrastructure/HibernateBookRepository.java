@@ -37,4 +37,9 @@ public class HibernateBookRepository implements BookRepository {
 
         return query.getResultStream().findFirst();
     }
+
+    @Override
+    public void add(Book book) {
+        this.em.persist(book);
+    }
 }

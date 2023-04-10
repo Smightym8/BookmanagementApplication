@@ -3,6 +3,8 @@ package at.fhv.msp.bookmanagementapplication.unit.application;
 
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
+import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
@@ -154,5 +156,59 @@ public class BookServiceTests {
 
         // when ... then
         assertThrows(BookNotFoundException.class, () -> bookService.getBookByIsbn(isbnExpected));
+    }
+
+    @Test
+    void given_bookCreateDto_when_createBook_then_addIsCalled() {
+        // given
+        BookCreateDto bookCreateDto = BookCreateDto.builder()
+                .withIsbn("1234567891234")
+                .withTitle("A title")
+                .withPublicationDate(LocalDate.now())
+                .withPrice(new BigDecimal("9.99"))
+                .withGenre("Horror")
+                .build();
+
+        Book bookExpected = new Book(
+                bookCreateDto.isbn(),
+                bookCreateDto.title(),
+                bookCreateDto.publicationDate(),
+                bookCreateDto.price(),
+                bookCreateDto.genre()
+        );
+
+        Mockito.when(bookRepository.findBookByIsbn(bookCreateDto.isbn())).thenReturn(Optional.empty());
+        Mockito.doNothing().when(bookRepository).add(bookExpected);
+
+        // when
+        bookService.createBook(bookCreateDto);
+
+        // then
+        Mockito.verify(bookRepository, Mockito.times(1)).add(bookExpected);
+    }
+
+    @Test
+    void given_bookCreateDto_withExistingIsbn_when_createBook_then_IsbnAlreadyExistsExceptionIsThrown() {
+        // given
+        BookCreateDto bookCreateDto = BookCreateDto.builder()
+                .withIsbn("1234567891234")
+                .withTitle("A title")
+                .withPublicationDate(LocalDate.now())
+                .withPrice(new BigDecimal("9.99"))
+                .withGenre("Horror")
+                .build();
+
+        Book book = new Book(
+                bookCreateDto.isbn(),
+                bookCreateDto.title(),
+                bookCreateDto.publicationDate(),
+                bookCreateDto.price(),
+                bookCreateDto.genre()
+        );
+
+        Mockito.when(bookRepository.findBookByIsbn(bookCreateDto.isbn())).thenReturn(Optional.of(book));
+
+        // when ... then
+        assertThrows(IsbnAlreadyExistsException.class, () -> bookService.createBook(bookCreateDto));
     }
 }
