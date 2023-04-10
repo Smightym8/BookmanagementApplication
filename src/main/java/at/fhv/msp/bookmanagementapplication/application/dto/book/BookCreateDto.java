@@ -18,22 +18,27 @@ public class BookCreateDto {
         return new Builder();
     }
 
+    @JsonGetter
     public String isbn() {
         return isbn;
     }
 
+    @JsonGetter
     public String title() {
         return title;
     }
 
+    @JsonGetter
     public LocalDate publicationDate() {
         return publicationDate;
     }
 
+    @JsonGetter
     public BigDecimal price() {
         return price;
     }
 
+    @JsonGetter
     public String genre() {
         return genre;
     }

@@ -7,6 +7,7 @@ import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +47,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public Long createBook(BookCreateDto bookCreateDto) throws IllegalArgumentException {
         // Check if there is already a book with provided isbn
         Optional<Book> bookForProvidedIsbn = bookRepository.findBookByIsbn(bookCreateDto.isbn());
