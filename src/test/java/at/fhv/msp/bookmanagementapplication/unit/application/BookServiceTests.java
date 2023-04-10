@@ -182,6 +182,7 @@ public class BookServiceTests {
                 .build();
 
         Mockito.when(bookRepository.findBookById(book.getBookId())).thenReturn(Optional.of(book));
+        Mockito.when(bookRepository.findBookByIsbn(book.getIsbn())).thenReturn(Optional.of(book));
 
         // when
         BookDto bookActual = bookService.updateBook(book.getBookId(), bookUpdateDto);
@@ -207,6 +208,42 @@ public class BookServiceTests {
 
         // when ... then
         assertThrows(BookNotFoundException.class, () -> bookService.updateBook(bookId, bookUpdateDto));
+    }
+
+    @Test
+    void given_bookIdAndBookUpdateDto_and_AlreadyExistingIsbn_when_update_then_IsbnAlreadyExistsExceptionIsThrown() {
+        // given
+        Long bookId = 42L;
+
+        Book bookToBeUpdated = new Book(
+                "1234567891234",
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                "Reference book"
+        );
+
+        Book otherBookWithExistingIsbn = new Book(
+                "1234567899999",
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                "Reference book"
+        );
+
+        BookUpdateDto bookUpdateDto = BookUpdateDto.builder()
+                .withIsbn("1234567899999")
+                .withTitle("A reference book")
+                .withPublicationDate(LocalDate.of(2011,4,20))
+                .withPrice(new BigDecimal("38.93"))
+                .withGenre("Reference book")
+                .build();
+
+        Mockito.when(bookRepository.findBookById(bookId)).thenReturn(Optional.of(bookToBeUpdated));
+        Mockito.when(bookRepository.findBookByIsbn(bookUpdateDto.isbn())).thenReturn(Optional.of(otherBookWithExistingIsbn));
+
+        // when ... then
+        assertThrows(IsbnAlreadyExistsException.class, () -> bookService.updateBook(bookId, bookUpdateDto));
     }
 
     @Test
