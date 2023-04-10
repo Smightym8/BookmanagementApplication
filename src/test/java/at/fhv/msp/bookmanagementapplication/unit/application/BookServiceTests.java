@@ -2,6 +2,7 @@ package at.fhv.msp.bookmanagementapplication.unit.application;
 
 
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
@@ -15,8 +16,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -76,5 +79,80 @@ public class BookServiceTests {
             assertEquals(bookExpected.getPrice(), bookActual.price());
             assertEquals(bookExpected.getGenre(), bookActual.genre());
         }
+    }
+
+    @Test
+    void given_bookInRepository_when_getBookById_then_return_expectedDto() {
+        // given
+        Long bookId = 1L;
+        Book bookExpected =new Book(
+                "1234567891234",
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                "Reference book"
+        );
+        bookExpected.setBookId(bookId);
+
+        Mockito.when(bookRepository.findBookById(bookId)).thenReturn(Optional.of(bookExpected));
+
+        // when
+        BookDto bookActual = bookService.getBookById(bookId);
+
+        // then
+        assertEquals(bookExpected.getBookId(), bookActual.id());
+        assertEquals(bookExpected.getIsbn(), bookActual.isbn());
+        assertEquals(bookExpected.getTitle(), bookActual.title());
+        assertEquals(bookExpected.getPublicationDate(), bookActual.publicationDate());
+        assertEquals(bookExpected.getPrice(), bookActual.price());
+        assertEquals(bookExpected.getGenre(), bookActual.genre());
+    }
+
+    @Test
+    void given_nonExistentBookId_when_getBookById_then_BookNotFoundExceptionIsReturned() {
+        // given
+        Long bookId = 1L;
+        Mockito.when(bookRepository.findBookById(bookId)).thenReturn(Optional.empty());
+
+        // when ... then
+        assertThrows(BookNotFoundException.class, () -> bookService.getBookById(bookId));
+    }
+
+    @Test
+    void given_bookInRepository_when_getBookByIsbn_then_return_expectedDto() {
+        // given
+        Long bookId = 1L;
+        String isbnExpected = "1234567891234";
+        Book bookExpected =new Book(
+                isbnExpected,
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                "Reference book"
+        );
+        bookExpected.setBookId(bookId);
+
+        Mockito.when(bookRepository.findBookByIsbn(isbnExpected)).thenReturn(Optional.of(bookExpected));
+
+        // when
+        BookDto bookActual = bookService.getBookByIsbn(isbnExpected);
+
+        // then
+        assertEquals(bookExpected.getBookId(), bookActual.id());
+        assertEquals(bookExpected.getIsbn(), bookActual.isbn());
+        assertEquals(bookExpected.getTitle(), bookActual.title());
+        assertEquals(bookExpected.getPublicationDate(), bookActual.publicationDate());
+        assertEquals(bookExpected.getPrice(), bookActual.price());
+        assertEquals(bookExpected.getGenre(), bookActual.genre());
+    }
+
+    @Test
+    void given_nonExistentBookIsbn_when_getBookByIsbn_then_BookNotFoundExceptionIsReturned() {
+        // given
+        String isbnExpected = "1234567891234";
+        Mockito.when(bookRepository.findBookByIsbn(isbnExpected)).thenReturn(Optional.empty());
+
+        // when ... then
+        assertThrows(BookNotFoundException.class, () -> bookService.getBookByIsbn(isbnExpected));
     }
 }

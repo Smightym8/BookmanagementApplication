@@ -2,6 +2,7 @@ package at.fhv.msp.bookmanagementapplication.application.impl;
 
 
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
@@ -22,6 +23,24 @@ public class BookServiceImpl implements BookService {
                 .stream()
                 .map(this::bookDtoFromBook)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public BookDto getBookById(Long id) throws BookNotFoundException {
+        Book book = bookRepository.findBookById(id).orElseThrow(
+                () -> new BookNotFoundException("Book with id " + id + " not found")
+        );
+
+        return bookDtoFromBook(book);
+    }
+
+    @Override
+    public BookDto getBookByIsbn(String isbn) throws BookNotFoundException {
+        Book book = bookRepository.findBookByIsbn(isbn).orElseThrow(
+                () -> new BookNotFoundException("Book with isbn " + isbn + " not found")
+        );
+
+        return bookDtoFromBook(book);
     }
 
     private BookDto bookDtoFromBook(Book book) {
