@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Transactional
@@ -66,5 +68,62 @@ public class BookRepositoryTests {
             assertEquals(bookExpected.getPrice(), bookActual.getPrice());
             assertEquals(bookExpected.getGenre(), bookActual.getGenre());
         }
+    }
+
+    @Test
+    void given_bookInRepository_when_findBookById_then_return_expectedBook() {
+        // given
+        Long bookIdExpected = 100L;
+        Book bookExpected =  new Book(
+                "1234567891234",
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                "Reference book"
+        );
+        bookExpected.setBookId(bookIdExpected);
+
+        // when
+        Optional<Book> bookOpt = bookRepository.findBookById(bookIdExpected);
+
+        // then
+        assertTrue(bookOpt.isPresent());
+        Book bookActual = bookOpt.get();
+
+        assertEquals(bookExpected.getBookId(), bookActual.getBookId());
+        assertEquals(bookExpected.getIsbn(), bookActual.getIsbn());
+        assertEquals(bookExpected.getTitle(), bookActual.getTitle());
+        assertEquals(bookExpected.getPublicationDate(), bookActual.getPublicationDate());
+        assertEquals(bookExpected.getPrice(), bookActual.getPrice());
+        assertEquals(bookExpected.getGenre(), bookActual.getGenre());
+    }
+
+    @Test
+    void given_bookInRepository_when_findBookByIsbn_then_return_expectedBook() {
+        // given
+        Long bookIdExpected = 100L;
+        String isbnExpected = "1234567891234";
+        Book bookExpected =  new Book(
+                isbnExpected,
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                "Reference book"
+        );
+        bookExpected.setBookId(bookIdExpected);
+
+        // when
+        Optional<Book> bookOpt = bookRepository.findBookByIsbn(isbnExpected);
+
+        // then
+        assertTrue(bookOpt.isPresent());
+        Book bookActual = bookOpt.get();
+
+        assertEquals(bookExpected.getBookId(), bookActual.getBookId());
+        assertEquals(bookExpected.getIsbn(), bookActual.getIsbn());
+        assertEquals(bookExpected.getTitle(), bookActual.getTitle());
+        assertEquals(bookExpected.getPublicationDate(), bookActual.getPublicationDate());
+        assertEquals(bookExpected.getPrice(), bookActual.getPrice());
+        assertEquals(bookExpected.getGenre(), bookActual.getGenre());
     }
 }
