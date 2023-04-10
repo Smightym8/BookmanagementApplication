@@ -1,0 +1,83 @@
+name: CI/CD
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'adopt'
+
+      - name: Prepare env file for build
+        run: |
+          echo "${{ secrets.BUILD_ENV_FILE }}" > .env
+
+      - name: Clean build
+        run: ./gradlew clean
+
+      - name: Create database schema
+        run: ./gradlew createSchema
+
+      - name: Build Springboot Application and run tests
+        run: ./gradlew build
+
+      - name: Run pgTAP tests
+        run: ./gradlew pgProve
+
+      - name: Drop database schema
+        if: always()
+        run: ./gradlew dropSchema
+
+      - name: Remove build env file
+        if: always()
+        run: |
+          rm .env
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    steps:
+      - name: Prepare env file for deployment
+        run: |
+          echo "${{ secrets.PROD_ENV_FILE }}" > .env
+
+      - name: Deploy application
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          rm: true
+          source: "build/libs/*SNAPSHOT.jar,src/main/docker/application/Dockerfile,src/main/docker/application/docker-compose.yml,.env"
+          target: "deployment"
+
+      - name: Run application as docker container
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            mv ~/deployment/build/libs/*SNAPSHOT.jar ~/deployment
+            mv ~/deployment/src/main/docker/application/Dockerfile ~/deployment
+            mv ~/deployment/src/main/docker/application/docker-compose.yml ~/deployment
+            rm -r ~/deployment/build
+            rm -r ~/deployment/src
+            cd ~/deployment
+            docker-compose down
+            docker-compose build
+            docker-compose up -d

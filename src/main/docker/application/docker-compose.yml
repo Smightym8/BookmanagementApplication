@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  bookmanagement-api:
+    container_name: bookmanagement-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - dbnet
+    env_file:
+      - .env
+
+networks:
+  dbnet:
+    external:
+      name: dbnet # Exists already on server

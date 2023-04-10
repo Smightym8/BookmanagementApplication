@@ -1,7 +1,15 @@
+buildscript {
+    dependencies {
+        classpath 'org.postgresql:postgresql:42.6.0'
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.0.5'
     id 'io.spring.dependency-management' version '1.1.0'
+    id "co.uzzu.dotenv.gradle" version "2.0.0"
+    id 'jacoco'
 }
 
 group = 'at.fhv.msp'
@@ -12,14 +20,85 @@ repositories {
     mavenCentral()
 }
 
+jacoco {
+    toolVersion = "0.8.9"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.flywaydb:flyway-core'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
     runtimeOnly 'org.postgresql:postgresql'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+tasks.register('pgProve') {
+    group = "verification"
+    description = "Run the database test suite."
+    doLast {
+        file("src/test/sql").eachFile { file ->
+            if (file.name.endsWith(".sql")) {
+                exec {
+                    commandLine "pg_prove", "-d", env.DB_NAME.value, "-h", env.DB_HOST.value,
+                            "-p", env.DB_PORT.value, "-U", env.DB_USERNAME.value,
+                            file.path, "--verbose"
+                    environment([
+                            "PGPASSWORD": env.DB_PASSWORD.value
+                    ])
+                }
+            }
+        }
+    }
+}
+
+tasks.register("createSchema") {
+    group = "database"
+    description = "Create the database schema."
+    doLast {
+        ant.sql(classpath: buildscript.configurations.classpath.asPath,
+                driver: "org.postgresql.Driver",
+                url: "jdbc:postgresql://${env.DB_HOST.value}:${env.DB_PORT.value}/${env.DB_NAME.value}",
+                userid: "${env.ADMIN_USERNAME.value}",
+                password: "${env.ADMIN_PASSWORD.value}",
+                "CREATE USER ${env.DB_USERNAME.value} WITH PASSWORD '${env.DB_PASSWORD.value}';" +
+                        "CREATE SCHEMA AUTHORIZATION ${env.DB_USERNAME.value};"
+        )
+    }
+}
+
+tasks.register("dropSchema") {
+    group = "database"
+    description = "Drop the database schema."
+    doLast {
+        ant.sql(classpath: buildscript.configurations.classpath.asPath,
+                driver: "org.postgresql.Driver",
+                url: "jdbc:postgresql://${env.DB_HOST.value}:${env.DB_PORT.value}/${env.DB_NAME.value}",
+                userid: "${env.ADMIN_USERNAME.value}",
+                password: "${env.ADMIN_PASSWORD.value}",
+                "DROP SCHEMA ${env.DB_USERNAME.value} CASCADE;" +
+                        "DROP USER ${env.DB_USERNAME.value};"
+        )
+    }
 }
