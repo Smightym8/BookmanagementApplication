@@ -39,7 +39,13 @@ public class HibernateBookRepository implements BookRepository {
     }
 
     @Override
+    public void delete(Book book) {
+        this.em.remove(book);
+    }
+    
+    @Override
     public void add(Book book) {
         this.em.persist(book);
+
     }
 }

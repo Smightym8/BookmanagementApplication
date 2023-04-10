@@ -42,6 +42,13 @@ public class BookRestController {
         return ResponseEntity.ok().body(bookDto);
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<BookDto> deleteBook(@PathVariable Long id) throws BookNotFoundException {
+        BookDto deletedBook = bookService.deleteBook(id);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(deletedBook);
+    }
+    
     @PostMapping
     public ResponseEntity<Void> createBook(@RequestBody BookCreateDto bookCreateDto, HttpServletRequest request) throws IsbnAlreadyExistsException {
         Long createdBookId = bookService.createBook(bookCreateDto);

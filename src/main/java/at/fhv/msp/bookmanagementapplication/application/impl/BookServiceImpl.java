@@ -75,6 +75,18 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
+    public BookDto deleteBook(Long id) throws BookNotFoundException {
+        Book book = bookRepository.findBookById(id).orElseThrow(
+                () -> new BookNotFoundException("Book with id " + id + " not found")
+        );
+
+        bookRepository.delete(book);
+
+        return bookDtoFromBook(book);
+    }
+    
+    @Override
+    @Transactional
     public Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException {
         // Check if there is already a book with provided isbn
         Optional<Book> bookForProvidedIsbn = bookRepository.findBookByIsbn(bookCreateDto.isbn());

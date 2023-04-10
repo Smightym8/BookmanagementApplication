@@ -247,6 +247,40 @@ public class BookServiceTests {
     }
 
     @Test
+    void given_bookId_when_deleteBook_then_deleteIsCalled() {
+        // given
+        Long bookId = 42L;
+        Book book =new Book(
+                "1234567891234",
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                "Reference book"
+        );
+        book.setBookId(bookId);
+
+        Mockito.when(bookRepository.findBookById(bookId)).thenReturn(Optional.of(book));
+        Mockito.doNothing().when(bookRepository).delete(book);
+
+        // when
+        bookService.deleteBook(bookId);
+
+        // then
+        Mockito.verify(bookRepository, Mockito.times(1)).delete(book);
+    }
+
+    @Test
+    void given_nonExistentBookId_when_deleteBook_then_BookNotFoundExceptionIsThrown() {
+        // given
+        Long bookId = 42L;
+
+        Mockito.when(bookRepository.findBookById(bookId)).thenReturn(Optional.empty());
+
+        // when ... then
+        assertThrows(BookNotFoundException.class, () -> bookService.deleteBook(bookId));
+    }
+
+    @Test
     void given_bookCreateDto_when_createBook_then_addIsCalled() {
         // given
         BookCreateDto bookCreateDto = BookCreateDto.builder()

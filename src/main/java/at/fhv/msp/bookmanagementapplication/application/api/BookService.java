@@ -14,5 +14,6 @@ public interface BookService {
     BookDto getBookById(Long id) throws BookNotFoundException;
     BookDto getBookByIsbn(String isbn) throws BookNotFoundException;
     BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) throws BookNotFoundException;
+    BookDto deleteBook(Long id) throws BookNotFoundException;
     Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException;
 }
