@@ -3,6 +3,7 @@ package at.fhv.msp.bookmanagementapplication.application.impl;
 
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -43,6 +45,22 @@ public class BookServiceImpl implements BookService {
         return bookDtoFromBook(book);
     }
 
+    @Override
+    public Long createBook(BookCreateDto bookCreateDto) throws IllegalArgumentException {
+        // Check if there is already a book with provided isbn
+        Optional<Book> bookForProvidedIsbn = bookRepository.findBookByIsbn(bookCreateDto.isbn());
+
+        if(bookForProvidedIsbn.isPresent()) {
+            throw new IllegalArgumentException("There is already a book with isbn " + bookCreateDto.isbn());
+        }
+
+        Book bookToCreate = bookFromBookCreateDto(bookCreateDto);
+
+        bookRepository.add(bookToCreate);
+
+        return bookToCreate.getBookId();
+    }
+
     private BookDto bookDtoFromBook(Book book) {
         return BookDto.builder()
                 .withId(book.getBookId())
@@ -52,5 +70,15 @@ public class BookServiceImpl implements BookService {
                 .withPrice(book.getPrice())
                 .withGenre(book.getGenre())
                 .build();
+    }
+
+    private Book bookFromBookCreateDto(BookCreateDto bookCreateDto) {
+        return new Book(
+            bookCreateDto.isbn(),
+            bookCreateDto.title(),
+            bookCreateDto.publicationDate(),
+            bookCreateDto.price(),
+            bookCreateDto.genre()
+        );
     }
 }
