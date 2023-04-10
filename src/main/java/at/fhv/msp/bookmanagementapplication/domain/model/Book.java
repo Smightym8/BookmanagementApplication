@@ -71,6 +71,14 @@ public class Book {
         this.genre = genre;
     }
 
+    public void update(String isbn, String title, LocalDate publicationDate, BigDecimal price, String genre) {
+        this.isbn = isbn;
+        this.title = title;
+        this.publicationDate = publicationDate;
+        this.price = price;
+        this.genre = genre;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

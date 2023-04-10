@@ -4,6 +4,7 @@ package at.fhv.msp.bookmanagementapplication.application.impl;
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
+import at.fhv.msp.bookmanagementapplication.application.dto.book.BookUpdateDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,23 @@ public class BookServiceImpl implements BookService {
     public BookDto getBookByIsbn(String isbn) throws BookNotFoundException {
         Book book = bookRepository.findBookByIsbn(isbn).orElseThrow(
                 () -> new BookNotFoundException("Book with isbn " + isbn + " not found")
+        );
+
+        return bookDtoFromBook(book);
+    }
+
+    @Override
+    public BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) throws BookNotFoundException {
+        Book book = bookRepository.findBookById(id).orElseThrow(
+                () -> new BookNotFoundException("Book with id " + id + " not found")
+        );
+
+        book.update(
+                book.getIsbn(),
+                bookUpdateDto.title(),
+                bookUpdateDto.publicationDate(),
+                bookUpdateDto.price(),
+                bookUpdateDto.genre()
         );
 
         return bookDtoFromBook(book);

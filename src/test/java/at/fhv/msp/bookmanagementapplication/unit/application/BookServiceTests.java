@@ -4,6 +4,7 @@ package at.fhv.msp.bookmanagementapplication.unit.application;
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
+import at.fhv.msp.bookmanagementapplication.application.dto.book.BookUpdateDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
 import jakarta.transaction.Transactional;
@@ -123,7 +124,7 @@ public class BookServiceTests {
         // given
         Long bookId = 1L;
         String isbnExpected = "1234567891234";
-        Book bookExpected =new Book(
+        Book bookExpected = new Book(
                 isbnExpected,
                 "A reference book",
                 LocalDate.of(2011,4,20),
@@ -154,5 +155,55 @@ public class BookServiceTests {
 
         // when ... then
         assertThrows(BookNotFoundException.class, () -> bookService.getBookByIsbn(isbnExpected));
+    }
+
+    @Test
+    void given_bookIdAndBookUpdateDto_when_update_then_bookIsUpdated() {
+        // given
+        BigDecimal priceExpected = new BigDecimal("12.99");
+
+        Book book = new Book(
+                "1234567891234",
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                "Reference book"
+        );
+        book.setBookId(42L);
+
+        BookUpdateDto bookUpdateDto = BookUpdateDto.builder()
+                .withIsbn(book.getIsbn())
+                .withTitle(book.getTitle())
+                .withPublicationDate(book.getPublicationDate())
+                .withPrice(priceExpected)
+                .withGenre(book.getGenre())
+                .build();
+
+        Mockito.when(bookRepository.findBookById(book.getBookId())).thenReturn(Optional.of(book));
+
+        // when
+        BookDto bookActual = bookService.updateBook(book.getBookId(), bookUpdateDto);
+
+        // then
+        assertEquals(priceExpected, bookActual.price());
+    }
+
+    @Test
+    void given_InvalidBookIdAndBookUpdateDto_when_update_then_BookNotFoundExceptionIsThrown() {
+        // given
+        Long bookId = 42L;
+
+        BookUpdateDto bookUpdateDto = BookUpdateDto.builder()
+                .withIsbn("1234567891234")
+                .withTitle("A reference book")
+                .withPublicationDate(LocalDate.of(2011,4,20))
+                .withPrice(new BigDecimal("38.93"))
+                .withGenre("Reference book")
+                .build();
+
+        Mockito.when(bookRepository.findBookById(bookId)).thenReturn(Optional.empty());
+
+        // when ... then
+        assertThrows(BookNotFoundException.class, () -> bookService.updateBook(bookId, bookUpdateDto));
     }
 }
