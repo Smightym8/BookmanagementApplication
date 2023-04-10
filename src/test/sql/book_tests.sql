@@ -1,5 +1,5 @@
 BEGIN;
-SELECT plan( 12 );
+SELECT plan( 11 );
 
 -- Test table and columns
 SELECT has_table( 'book' );
@@ -10,7 +10,6 @@ SELECT has_column( 'book', 'title' );
 SELECT has_column( 'book', 'publication_date' );
 SELECT has_column( 'book', 'price' );
 SELECT has_column( 'book', 'genre' );
-SELECT has_column( 'book', 'nonexistent' );
 
 -- Test keys
 SELECT col_is_pk( 'book', 'book_id' );
