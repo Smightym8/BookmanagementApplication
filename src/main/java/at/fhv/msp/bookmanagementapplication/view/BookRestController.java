@@ -2,6 +2,7 @@ package at.fhv.msp.bookmanagementapplication.view;
 
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +41,7 @@ public class BookRestController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createBook(@RequestBody BookCreateDto bookCreateDto, HttpServletRequest request) throws IllegalArgumentException {
+    public ResponseEntity<Void> createBook(@RequestBody BookCreateDto bookCreateDto, HttpServletRequest request) throws IsbnAlreadyExistsException {
         Long createdBookId = bookService.createBook(bookCreateDto);
         URI location = ServletUriComponentsBuilder.fromRequestUri(request).path("/{id}")
                 .buildAndExpand(createdBookId).toUri();

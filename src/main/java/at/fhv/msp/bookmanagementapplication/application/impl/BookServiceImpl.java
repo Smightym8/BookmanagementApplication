@@ -3,6 +3,7 @@ package at.fhv.msp.bookmanagementapplication.application.impl;
 
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
@@ -48,12 +49,12 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public Long createBook(BookCreateDto bookCreateDto) throws IllegalArgumentException {
+    public Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException {
         // Check if there is already a book with provided isbn
         Optional<Book> bookForProvidedIsbn = bookRepository.findBookByIsbn(bookCreateDto.isbn());
 
         if(bookForProvidedIsbn.isPresent()) {
-            throw new IllegalArgumentException("There is already a book with isbn " + bookCreateDto.isbn());
+            throw new IsbnAlreadyExistsException("There is already a book with isbn " + bookCreateDto.isbn());
         }
 
         Book bookToCreate = bookFromBookCreateDto(bookCreateDto);

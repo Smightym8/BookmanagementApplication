@@ -3,6 +3,7 @@ package at.fhv.msp.bookmanagementapplication.unit.application;
 
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
@@ -187,7 +188,7 @@ public class BookServiceTests {
     }
 
     @Test
-    void given_bookCreateDto_withExistingIsbn_when_createBook_then_addIsCalled() {
+    void given_bookCreateDto_withExistingIsbn_when_createBook_then_IsbnAlreadyExistsExceptionIsThrown() {
         // given
         BookCreateDto bookCreateDto = BookCreateDto.builder()
                 .withIsbn("1234567891234")
@@ -208,6 +209,6 @@ public class BookServiceTests {
         Mockito.when(bookRepository.findBookByIsbn(bookCreateDto.isbn())).thenReturn(Optional.of(book));
 
         // when ... then
-        assertThrows(IllegalArgumentException.class, () -> bookService.createBook(bookCreateDto));
+        assertThrows(IsbnAlreadyExistsException.class, () -> bookService.createBook(bookCreateDto));
     }
 }
