@@ -126,4 +126,25 @@ public class BookRepositoryTests {
         assertEquals(bookExpected.getPrice(), bookActual.getPrice());
         assertEquals(bookExpected.getGenre(), bookActual.getGenre());
     }
+
+    @Test
+    void given_book_when_add_then_bookIsSaved() {
+        // given
+        String isbnExpected = "1234567895437";
+        Book bookExpected =  new Book(
+                isbnExpected,
+                "A new book",
+                LocalDate.of(1990,12,12),
+                new BigDecimal("42.00"),
+                "Novel"
+        );
+
+        // when
+        bookRepository.add(bookExpected);
+        em.flush();
+        Optional<Book> bookOpt = bookRepository.findBookByIsbn(isbnExpected);
+
+        // then
+        assertTrue(bookOpt.isPresent());
+    }
 }

@@ -1,6 +1,7 @@
 package at.fhv.msp.bookmanagementapplication.view;
 
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
 import at.fhv.msp.bookmanagementapplication.application.dto.ErrorResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,16 @@ public class ControllerExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponseDto);
+    }
+
+    @ExceptionHandler(IsbnAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handleIsbnAlreadyExistsException(IsbnAlreadyExistsException ex) {
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
+                .withStatusCode(HttpStatus.BAD_REQUEST.value())
+                .withMessage(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponseDto);
     }
 
     @ExceptionHandler(Exception.class)
