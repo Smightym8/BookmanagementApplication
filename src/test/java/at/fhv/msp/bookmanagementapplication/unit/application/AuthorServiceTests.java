@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,6 +25,37 @@ public class AuthorServiceTests {
 
     @MockBean
     private AuthorRepository authorRepository;
+
+    @Test
+    void given_4authorsInRepository_when_getAllAuthors_then_return_expectedDtos() {
+        // given
+        List<Author> authorsExpected = List.of(
+                new Author("John", "Doe"),
+                new Author("Jane", "Doe"),
+                new Author("Max", "Mustermann"),
+                new Author("Maria", "Musterfrau")
+        );
+
+        for(int i = 0; i < authorsExpected.size(); i++) {
+            authorsExpected.get(i).setAuthorId((long) i);
+        }
+
+        Mockito.when(authorRepository.findAllAuthors()).thenReturn(authorsExpected);
+
+        // when
+        List<AuthorDto> authorsActual = authorService.getAllAuthors();
+
+        // then
+        assertEquals(authorsExpected.size(), authorsActual.size());
+
+        for(int i = 0; i < authorsExpected.size(); i++) {
+            Author authorExpected = authorsExpected.get(i);
+            AuthorDto authorActual = authorsActual.get(i);
+
+            assertEquals(authorExpected.getFirstName(), authorActual.firstName());
+            assertEquals(authorExpected.getLastName(), authorActual.lastName());
+        }
+    }
 
     @Test
     void given_authorInRepository_when_getAuthorById_then_return_expectedDto() {

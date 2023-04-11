@@ -10,11 +10,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/authors")
 public class AuthorRestController {
     @Autowired
     private AuthorService authorService;
+
+    @GetMapping
+    public ResponseEntity<AuthorDto[]> getAllAuthors() {
+        List<AuthorDto> authorDtoList = authorService.getAllAuthors();
+        AuthorDto[] authorDtoArray = new AuthorDto[authorDtoList.size()];
+
+        return ResponseEntity.ok().body(authorDtoList.toArray(authorDtoArray));
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<AuthorDto> getAuthorById(@PathVariable Long id) throws AuthorNotFoundException {
