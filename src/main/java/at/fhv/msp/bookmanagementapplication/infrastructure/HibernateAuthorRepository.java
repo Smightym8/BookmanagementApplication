@@ -7,12 +7,19 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
 public class HibernateAuthorRepository implements AuthorRepository {
     @PersistenceContext
     private EntityManager em;
+
+    @Override
+    public List<Author> findAllAuthors() {
+        TypedQuery<Author> query = this.em.createQuery("SELECT a FROM Author a", Author.class);
+        return query.getResultList();
+    }
 
     @Override
     public Optional<Author> findAuthorById(Long id) {

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,6 +22,27 @@ public class AuthorRepositoryTests {
 
     @Autowired
     private AuthorRepository authorRepository;
+
+    @Test
+    void given_4authorsInRepository_when_findAllAuthors_then_return_expectedAuthors() {
+        // given
+        List<Author> authorsExpected = List.of(
+            new Author("John", "Doe"),
+            new Author("Jane", "Doe"),
+            new Author("Max", "Mustermann"),
+            new Author("Maria", "Musterfrau")
+        );
+
+        // when
+        List<Author> authorsActual = authorRepository.findAllAuthors();
+
+        // then
+        assertEquals(authorsExpected.size(), authorsActual.size());
+
+        for(Author author : authorsExpected) {
+            assertTrue(authorsActual.contains(author));
+        }
+    }
 
     @Test
     void given_authorInRepository_when_findAuthorById_then_return_expectedAuthor() {

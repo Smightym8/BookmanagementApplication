@@ -8,10 +8,21 @@ import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 public class AuthorServiceImpl implements AuthorService {
     @Autowired
     private AuthorRepository authorRepository;
+
+    @Override
+    public List<AuthorDto> getAllAuthors() {
+        return authorRepository.findAllAuthors()
+                .stream()
+                .map(this::authorDtoFromAuthor)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public AuthorDto getAuthorById(Long id) throws AuthorNotFoundException {
