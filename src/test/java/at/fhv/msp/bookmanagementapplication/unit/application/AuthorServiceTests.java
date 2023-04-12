@@ -4,6 +4,7 @@ import at.fhv.msp.bookmanagementapplication.application.api.AuthorService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
+import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorUpdateDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import jakarta.transaction.Transactional;
@@ -131,5 +132,43 @@ public class AuthorServiceTests {
 
         // when ... then
         assertThrows(AuthorNotFoundException.class, () -> authorService.deleteAuthor(authorId));
+    }
+
+    @Test
+    void given_authorIdAndAuthorUpdateDto_when_updateAuthor_then_authorIsUpdated() {
+        // given
+        Long authorId = 42L;
+        String lastNameExpected = "Doe Doe";
+        Author author = new Author("John", "Doe");
+        author.setAuthorId(authorId);
+
+        AuthorUpdateDto authorUpdateDto = AuthorUpdateDto.builder()
+                .withFirstName("John")
+                .withLastName(lastNameExpected)
+                .build();
+
+        Mockito.when(authorRepository.findAuthorById(authorId)).thenReturn(Optional.of(author));
+
+        // when
+        AuthorDto authorActual = authorService.updateAuthor(authorId, authorUpdateDto);
+
+        // then
+        assertEquals(author.getFirstName(), authorActual.firstName());
+        assertEquals(lastNameExpected, authorActual.lastName());
+    }
+
+    @Test
+    void given_nonExistentAuthorIdAndAuthorUpdateDto_when_updateAuthor_then_AuthorNotFoundExceptionIsThrown() {
+        // given
+        Long authorId = 42L;
+        AuthorUpdateDto authorUpdateDto = AuthorUpdateDto.builder()
+                .withFirstName("John")
+                .withLastName("Doe Doe")
+                .build();
+
+        Mockito.when(authorRepository.findAuthorById(authorId)).thenReturn(Optional.empty());
+
+        // when ... then
+        assertThrows(AuthorNotFoundException.class, () -> authorService.updateAuthor(authorId, authorUpdateDto));
     }
 }

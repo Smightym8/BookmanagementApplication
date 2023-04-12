@@ -4,6 +4,7 @@ import at.fhv.msp.bookmanagementapplication.application.api.AuthorService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
+import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorUpdateDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import jakarta.transaction.Transactional;
@@ -31,6 +32,19 @@ public class AuthorServiceImpl implements AuthorService {
         Author author = authorRepository.findAuthorById(id).orElseThrow(
                 () -> new AuthorNotFoundException("Author with id " + id + " not found")
         );
+
+        return authorDtoFromAuthor(author);
+    }
+
+    @Override
+    @Transactional
+    public AuthorDto updateAuthor(Long id, AuthorUpdateDto authorUpdateDto) throws AuthorNotFoundException {
+        Author author = authorRepository.findAuthorById(id).orElseThrow(
+                () -> new AuthorNotFoundException("Author with id " + id + " not found")
+        );
+
+        author.setFirstName(authorUpdateDto.firstName());
+        author.setLastName(authorUpdateDto.lastName());
 
         return authorDtoFromAuthor(author);
     }

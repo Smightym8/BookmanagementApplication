@@ -4,6 +4,7 @@ import at.fhv.msp.bookmanagementapplication.application.api.AuthorService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
+import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorUpdateDto;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -49,5 +50,13 @@ public class AuthorRestController {
         AuthorDto deletedAuthor = authorService.deleteAuthor(id);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(deletedAuthor);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<AuthorDto> updateAuthor(@PathVariable Long id, @RequestBody AuthorUpdateDto authorUpdateDto)
+            throws AuthorNotFoundException {
+        AuthorDto updatedAuthor = authorService.updateAuthor(id, authorUpdateDto);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(updatedAuthor);
     }
 }
