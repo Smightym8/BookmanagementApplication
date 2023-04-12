@@ -104,4 +104,32 @@ public class AuthorServiceTests {
         // then
         Mockito.verify(authorRepository, Mockito.times(1)).add(author);
     }
+
+    @Test
+    void given_authorId_when_deleteAuthor_then_deleteIsCalled() {
+        // given
+        Long authorId = 42L;
+        Author author = new Author("John", "Doe");
+        author.setAuthorId(authorId);
+
+        Mockito.when(authorRepository.findAuthorById(authorId)).thenReturn(Optional.of(author));
+        Mockito.doNothing().when(authorRepository).delete(author);
+
+        // when
+        authorService.deleteAuthor(authorId);
+
+        // then
+        Mockito.verify(authorRepository, Mockito.times(1)).delete(author);
+    }
+
+    @Test
+    void given_nonExistentAuthorId_when_deleteAuthor_then_AuthorNotFoundExceptionIsThrown() {
+        // given
+        Long authorId = 42L;
+
+        Mockito.when(authorRepository.findAuthorById(authorId)).thenReturn(Optional.empty());
+
+        // when ... then
+        assertThrows(AuthorNotFoundException.class, () -> authorService.deleteAuthor(authorId));
+    }
 }

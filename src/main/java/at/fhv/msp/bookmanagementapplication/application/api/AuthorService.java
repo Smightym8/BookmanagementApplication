@@ -10,4 +10,5 @@ public interface AuthorService {
     List<AuthorDto> getAllAuthors();
     AuthorDto getAuthorById(Long id) throws AuthorNotFoundException;
     Long createAuthor(AuthorCreateDto authorCreateDto);
+    AuthorDto deleteAuthor(Long id) throws AuthorNotFoundException;
 }
