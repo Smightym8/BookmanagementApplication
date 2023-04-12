@@ -45,6 +45,18 @@ public class AuthorServiceImpl implements AuthorService {
         return author.getAuthorId();
     }
 
+    @Override
+    @Transactional
+    public AuthorDto deleteAuthor(Long id) throws AuthorNotFoundException {
+        Author author = authorRepository.findAuthorById(id).orElseThrow(
+                () -> new AuthorNotFoundException("Author with id " + id + " not found")
+        );
+
+        authorRepository.delete(author);
+
+        return authorDtoFromAuthor(author);
+    }
+
     private AuthorDto authorDtoFromAuthor(Author author) {
         return AuthorDto.builder()
                 .withId(author.getAuthorId())

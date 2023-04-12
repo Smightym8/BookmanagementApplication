@@ -9,4 +9,5 @@ public interface AuthorRepository {
     List<Author> findAllAuthors();
     Optional<Author> findAuthorById(Long id);
     void add(Author author);
+    void delete(Author author);
 }

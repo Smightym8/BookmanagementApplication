@@ -11,8 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -74,5 +73,19 @@ public class AuthorRepositoryTests {
         // then
         List<Author> authors = authorRepository.findAllAuthors();
         assertTrue(authors.contains(authorExpected));
+    }
+
+    @Test
+    void given_author_when_delete_then_authorIsDeleted() {
+        // given
+        Long authorId = 100L;
+        Author author = authorRepository.findAuthorById(authorId).get();
+
+        // when
+        authorRepository.delete(author);
+
+        // then
+        Optional<Author> authorOpt = authorRepository.findAuthorById(authorId);
+        assertFalse(authorOpt.isPresent());
     }
 }

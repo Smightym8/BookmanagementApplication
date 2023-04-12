@@ -33,4 +33,9 @@ public class HibernateAuthorRepository implements AuthorRepository {
     public void add(Author author) {
         this.em.persist(author);
     }
+
+    @Override
+    public void delete(Author author) {
+        this.em.remove(author);
+    }
 }

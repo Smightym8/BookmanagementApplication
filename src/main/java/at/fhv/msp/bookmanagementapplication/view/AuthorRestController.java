@@ -6,6 +6,7 @@ import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateD
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -41,5 +42,12 @@ public class AuthorRestController {
                 .buildAndExpand(createdAuthorId).toUri();
 
         return ResponseEntity.created(location).build();
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<AuthorDto> deleteAuthor(@PathVariable Long id) throws AuthorNotFoundException {
+        AuthorDto deletedAuthor = authorService.deleteAuthor(id);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(deletedAuthor);
     }
 }
