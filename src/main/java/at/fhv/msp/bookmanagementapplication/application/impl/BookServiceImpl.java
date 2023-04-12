@@ -63,6 +63,7 @@ public class BookServiceImpl implements BookService {
             throw new IsbnAlreadyExistsException("There is already a book with isbn " + bookUpdateDto.isbn());
         }
 
+        // TODO: Remove update method and use setters instead
         bookToBeUpdated.update(
                 bookToBeUpdated.getIsbn(),
                 bookUpdateDto.title(),
