@@ -2,11 +2,13 @@ package at.fhv.msp.bookmanagementapplication.unit.application;
 
 import at.fhv.msp.bookmanagementapplication.application.api.AuthorService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -82,5 +84,24 @@ public class AuthorServiceTests {
 
         // when ... then
         assertThrows(AuthorNotFoundException.class, () -> authorService.getAuthorById(authorIdExpected));
+    }
+
+    @Test
+    void given_authorCreateDto_when_createAuthor_then_addIsCalled() {
+        // given
+        AuthorCreateDto authorCreateDto = AuthorCreateDto.builder()
+                .withFirstName("John")
+                .withLastName("Doe")
+                .build();
+
+        Author author = new Author(authorCreateDto.firstName(), authorCreateDto.lastName());
+
+        Mockito.doNothing().when(authorRepository).add(author);
+
+        // when
+        authorService.createAuthor(authorCreateDto);
+
+        // then
+        Mockito.verify(authorRepository, Mockito.times(1)).add(author);
     }
 }

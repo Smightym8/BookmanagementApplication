@@ -61,4 +61,18 @@ public class AuthorRepositoryTests {
         assertEquals(firstNameExpected, authorActual.getFirstName());
         assertEquals(lastNameExpected, authorActual.getLastName());
     }
+
+    @Test
+    void given_author_when_add_then_authorIsSaved() {
+        // given
+        Author authorExpected = new Author("Test", "Author");
+
+        // when
+        authorRepository.add(authorExpected);
+        em.flush();
+
+        // then
+        List<Author> authors = authorRepository.findAllAuthors();
+        assertTrue(authors.contains(authorExpected));
+    }
 }

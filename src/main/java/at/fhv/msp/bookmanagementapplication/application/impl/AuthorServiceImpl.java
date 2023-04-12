@@ -2,9 +2,11 @@ package at.fhv.msp.bookmanagementapplication.application.impl;
 
 import at.fhv.msp.bookmanagementapplication.application.api.AuthorService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,11 +35,25 @@ public class AuthorServiceImpl implements AuthorService {
         return authorDtoFromAuthor(author);
     }
 
+    @Override
+    @Transactional
+    public Long createAuthor(AuthorCreateDto authorCreateDto) {
+        Author author = authorFromAuthorCreateDto(authorCreateDto);
+
+        authorRepository.add(author);
+
+        return author.getAuthorId();
+    }
+
     private AuthorDto authorDtoFromAuthor(Author author) {
         return AuthorDto.builder()
                 .withId(author.getAuthorId())
                 .withFirstName(author.getFirstName())
                 .withLastName(author.getLastName())
                 .build();
+    }
+
+    private Author authorFromAuthorCreateDto(AuthorCreateDto authorCreateDto) {
+        return new Author(authorCreateDto.firstName(), authorCreateDto.lastName());
     }
 }
