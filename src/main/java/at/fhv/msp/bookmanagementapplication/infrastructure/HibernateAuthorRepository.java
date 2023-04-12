@@ -28,4 +28,9 @@ public class HibernateAuthorRepository implements AuthorRepository {
 
         return query.getResultStream().findFirst();
     }
+
+    @Override
+    public void add(Author author) {
+        this.em.persist(author);
+    }
 }

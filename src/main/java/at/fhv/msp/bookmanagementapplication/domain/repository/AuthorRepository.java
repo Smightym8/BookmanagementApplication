@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface AuthorRepository {
     List<Author> findAllAuthors();
     Optional<Author> findAuthorById(Long id);
+    void add(Author author);
 }

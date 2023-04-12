@@ -2,14 +2,15 @@ package at.fhv.msp.bookmanagementapplication.view;
 
 import at.fhv.msp.bookmanagementapplication.application.api.AuthorService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -30,5 +31,15 @@ public class AuthorRestController {
     public ResponseEntity<AuthorDto> getAuthorById(@PathVariable Long id) throws AuthorNotFoundException {
         AuthorDto authorDto = authorService.getAuthorById(id);
         return ResponseEntity.ok().body(authorDto);
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> createAuthor(@RequestBody AuthorCreateDto authorCreateDto, HttpServletRequest request) {
+        Long createdAuthorId = authorService.createAuthor(authorCreateDto);
+
+        URI location = ServletUriComponentsBuilder.fromRequestUri(request).path("/{id}")
+                .buildAndExpand(createdAuthorId).toUri();
+
+        return ResponseEntity.created(location).build();
     }
 }
