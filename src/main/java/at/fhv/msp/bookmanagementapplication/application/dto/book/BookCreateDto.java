@@ -13,6 +13,7 @@ public class BookCreateDto {
     private LocalDate publicationDate;
     private BigDecimal price;
     private String genre;
+    private List<Long> authorIds;
 
     public static Builder builder() {
         return new Builder();
@@ -42,6 +43,9 @@ public class BookCreateDto {
     public String genre() {
         return genre;
     }
+
+    @JsonGetter
+    public List<Long> authorIds() { return authorIds; }
 
     private BookCreateDto() {}
 
@@ -77,12 +81,18 @@ public class BookCreateDto {
             return this;
         }
 
+        public Builder withAuthorIds(List<Long> authorIds) {
+            this.instance.authorIds = authorIds;
+            return this;
+        }
+
         public BookCreateDto build() {
             Objects.requireNonNull(this.instance.isbn, "isbn must be set in BookCreateDto");
             Objects.requireNonNull(this.instance.title, "title must be set in BookCreateDto");
             Objects.requireNonNull(this.instance.publicationDate, "publicationDate must be set in BookCreateDto");
             Objects.requireNonNull(this.instance.price, "price must be set in BookCreateDto");
             Objects.requireNonNull(this.instance.genre, "genre must be set in BookCreateDto");
+            Objects.requireNonNull(this.instance.authorIds, "authorIds must be set in BookCreateDto");
 
             return this.instance;
         }

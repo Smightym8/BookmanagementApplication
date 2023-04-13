@@ -1,17 +1,21 @@
 package at.fhv.msp.bookmanagementapplication.domain.model;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class Author {
     private Long authorId;
     private String firstName;
     private String lastName;
+    private Set<Book> books;
 
     private Author() {}
 
     public Author(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.books = new HashSet<>();
     }
 
     public Long getAuthorId() {
@@ -36,6 +40,18 @@ public class Author {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public Set<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(Set<Book> books) {
+        this.books = books;
+    }
+
+    public void addBook(Book book) {
+        this.books.add(book);
     }
 
     @Override

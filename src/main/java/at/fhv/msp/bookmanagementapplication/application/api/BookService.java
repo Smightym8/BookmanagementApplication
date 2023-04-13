@@ -1,6 +1,7 @@
 package at.fhv.msp.bookmanagementapplication.application.api;
 
 
+import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
@@ -15,5 +16,5 @@ public interface BookService {
     BookDto getBookByIsbn(String isbn) throws BookNotFoundException;
     BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) throws BookNotFoundException;
     BookDto deleteBook(Long id) throws BookNotFoundException;
-    Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException;
+    Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException, AuthorNotFoundException;
 }

@@ -2,12 +2,15 @@ package at.fhv.msp.bookmanagementapplication.unit.application;
 
 
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookUpdateDto;
+import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
+import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -32,6 +35,9 @@ public class BookServiceTests {
 
     @MockBean
     private BookRepository bookRepository;
+
+    @MockBean
+    private AuthorRepository authorRepository;
 
     @Test
     void given_3BooksInRepository_when_getAllBooks_then_return_expectedDtos() {
@@ -283,12 +289,16 @@ public class BookServiceTests {
     @Test
     void given_bookCreateDto_when_createBook_then_addIsCalled() {
         // given
+        Long authorId = 42L;
+        Author authorExpected = new Author("John", "Doe");
+
         BookCreateDto bookCreateDto = BookCreateDto.builder()
                 .withIsbn("1234567891234")
                 .withTitle("A title")
                 .withPublicationDate(LocalDate.now())
                 .withPrice(new BigDecimal("9.99"))
                 .withGenre("Horror")
+                .withAuthorIds(List.of(authorId))
                 .build();
 
         Book bookExpected = new Book(
@@ -298,8 +308,10 @@ public class BookServiceTests {
                 bookCreateDto.price(),
                 bookCreateDto.genre()
         );
+        bookExpected.addAuthor(authorExpected);
 
         Mockito.when(bookRepository.findBookByIsbn(bookCreateDto.isbn())).thenReturn(Optional.empty());
+        Mockito.when(authorRepository.findAuthorById(authorId)).thenReturn(Optional.of(authorExpected));
         Mockito.doNothing().when(bookRepository).add(bookExpected);
 
         // when
@@ -318,6 +330,7 @@ public class BookServiceTests {
                 .withPublicationDate(LocalDate.now())
                 .withPrice(new BigDecimal("9.99"))
                 .withGenre("Horror")
+                .withAuthorIds(List.of(1L, 2L))
                 .build();
 
         Book book = new Book(
@@ -332,5 +345,25 @@ public class BookServiceTests {
 
         // when ... then
         assertThrows(IsbnAlreadyExistsException.class, () -> bookService.createBook(bookCreateDto));
+    }
+
+    @Test
+    void given_bookCreateDtoWithNonExistentAuthorId_when_createBook_then_AuthorNotFoundExceptionIsThrown() {
+        // given
+        Long authorId = 42L;
+        BookCreateDto bookCreateDto = BookCreateDto.builder()
+                .withIsbn("1234567891234")
+                .withTitle("A title")
+                .withPublicationDate(LocalDate.now())
+                .withPrice(new BigDecimal("9.99"))
+                .withGenre("Some genre")
+                .withAuthorIds(List.of(authorId))
+                .build();
+
+        Mockito.when(bookRepository.findBookByIsbn(bookCreateDto.isbn())).thenReturn(Optional.empty());
+        Mockito.when(authorRepository.findAuthorById(authorId)).thenReturn(Optional.empty());
+
+        // when ... then
+        assertThrows(AuthorNotFoundException.class, () -> bookService.createBook(bookCreateDto));
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 public class BookDto {
@@ -13,6 +14,7 @@ public class BookDto {
     private LocalDate publicationDate;
     private BigDecimal price;
     private String genre;
+    private List<String> authorNames;
 
     public static Builder builder() {
         return new Builder();
@@ -47,6 +49,9 @@ public class BookDto {
     public String genre() {
         return genre;
     }
+
+    @JsonGetter
+    public List<String> authorNames() { return authorNames; }
 
     private BookDto() {}
 
@@ -87,6 +92,10 @@ public class BookDto {
             return this;
         }
 
+        public Builder withAuthorNames(List<String> authorNames) {
+            this.instance.authorNames = authorNames;
+            return this;
+        }
 
         public BookDto build() {
             Objects.requireNonNull(this.instance.id, "id must be set in BookDto");
@@ -95,6 +104,7 @@ public class BookDto {
             Objects.requireNonNull(this.instance.publicationDate, "publicationDate must be set in BookDto");
             Objects.requireNonNull(this.instance.price, "price must be set in BookDto");
             Objects.requireNonNull(this.instance.genre, "genre must be set in BookDto");
+            Objects.requireNonNull(this.instance.authorNames, "authorNames must be set in BookDto");
 
             return this.instance;
         }

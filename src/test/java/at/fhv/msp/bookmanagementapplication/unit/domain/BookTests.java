@@ -27,6 +27,7 @@ public class BookTests {
         assertEquals(publicationDateExpected, book.getPublicationDate());
         assertEquals(priceExpected, book.getPrice());
         assertEquals(genreExpected, book.getGenre());
+        assertEquals(0, book.getAuthors().size());
     }
 
     @Test

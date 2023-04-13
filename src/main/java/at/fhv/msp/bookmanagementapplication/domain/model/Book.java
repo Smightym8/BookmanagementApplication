@@ -2,7 +2,9 @@ package at.fhv.msp.bookmanagementapplication.domain.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class Book {
     private Long bookId;
@@ -11,6 +13,7 @@ public class Book {
     private LocalDate publicationDate;
     private BigDecimal price;
     private String genre;
+    private Set<Author> authors;
 
     private Book() {
     }
@@ -21,6 +24,7 @@ public class Book {
         this.publicationDate = publicationDate;
         this.price = price;
         this.genre = genre;
+        this.authors = new HashSet<>();
     }
 
     public Long getBookId() {
@@ -69,6 +73,19 @@ public class Book {
 
     public void setGenre(String genre) {
         this.genre = genre;
+    }
+
+    public Set<Author> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(Set<Author> authors) {
+        this.authors = authors;
+    }
+
+    public void addAuthor(Author author) {
+        this.authors.add(author);
+        author.addBook(this);
     }
 
     public void update(String isbn, String title, LocalDate publicationDate, BigDecimal price, String genre) {

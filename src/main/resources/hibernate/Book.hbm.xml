@@ -15,5 +15,10 @@
         <property name="publicationDate" column="publication_date" type="java.time.LocalDate" />
         <property name="price" column="price" type="java.math.BigDecimal" />
         <property name="genre" column="genre" type="java.lang.String" />
+
+        <set name="authors" table="written_by" lazy="true" fetch="select" cascade="save-update">
+            <key column="book_id"/>
+            <many-to-many column="author_id" class="at.fhv.msp.bookmanagementapplication.domain.model.Author"/>
+        </set>
     </class>
 </hibernate-mapping>
