@@ -4,6 +4,7 @@ package at.fhv.msp.bookmanagementapplication.application.impl;
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.InvalidBookCreationException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
@@ -95,8 +96,11 @@ public class BookServiceImpl implements BookService {
     
     @Override
     @Transactional
-    public Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException, AuthorNotFoundException {
-        // TODO: Check that authorIds size is > 0
+    public Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException, AuthorNotFoundException, InvalidBookCreationException {
+        if(bookCreateDto.authorIds().size() == 0) {
+            throw new InvalidBookCreationException("Can not create book without author");
+        }
+
         // Check if there is already a book with provided isbn
         Optional<Book> bookForProvidedIsbn = bookRepository.findBookByIsbn(bookCreateDto.isbn());
 

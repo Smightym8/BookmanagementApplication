@@ -4,6 +4,7 @@ package at.fhv.msp.bookmanagementapplication.unit.application;
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.InvalidBookCreationException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
@@ -21,6 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -365,5 +367,21 @@ public class BookServiceTests {
 
         // when ... then
         assertThrows(AuthorNotFoundException.class, () -> bookService.createBook(bookCreateDto));
+    }
+
+    @Test
+    void given_invalidBookCreateDto_withExistingIsbn_when_createBook_then_InvalidBookCreationExceptionIsThrown() {
+        // given
+        BookCreateDto bookCreateDto = BookCreateDto.builder()
+                .withIsbn("1234567891234")
+                .withTitle("A title")
+                .withPublicationDate(LocalDate.now())
+                .withPrice(new BigDecimal("9.99"))
+                .withGenre("Horror")
+                .withAuthorIds(Collections.emptyList())
+                .build();
+
+        // when ... then
+        assertThrows(InvalidBookCreationException.class, () -> bookService.createBook(bookCreateDto));
     }
 }
