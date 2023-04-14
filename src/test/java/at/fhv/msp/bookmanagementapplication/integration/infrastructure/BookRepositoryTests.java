@@ -64,7 +64,7 @@ public class BookRepositoryTests {
         booksExpected.get(0).addAuthor(mariaMusterfrau);
         booksExpected.get(0).addAuthor(maxMustermann);
         booksExpected.get(1).addAuthor(janeDoe);
-        booksExpected.get(2).addAuthor(johnDoe);
+        booksExpected.get(2).addAuthor(janeDoe);
         booksExpected.get(2).addAuthor(johnDoe);
 
         // when
