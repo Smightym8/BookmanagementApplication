@@ -15,6 +15,7 @@ public class Book {
     private String genre;
     private Set<Author> authors;
 
+    @SuppressWarnings("unused")
     private Book() {
     }
 
@@ -79,21 +80,14 @@ public class Book {
         return authors;
     }
 
-    public void setAuthors(Set<Author> authors) {
-        this.authors = authors;
-    }
-
     public void addAuthor(Author author) {
         this.authors.add(author);
         author.addBook(this);
     }
 
-    public void update(String isbn, String title, LocalDate publicationDate, BigDecimal price, String genre) {
-        this.isbn = isbn;
-        this.title = title;
-        this.publicationDate = publicationDate;
-        this.price = price;
-        this.genre = genre;
+    public void removeAuthor(Author author) {
+        this.authors.remove(author);
+        author.removeBook(this);
     }
 
     @Override
@@ -108,4 +102,6 @@ public class Book {
     public int hashCode() {
         return Objects.hash(isbn);
     }
+
+
 }

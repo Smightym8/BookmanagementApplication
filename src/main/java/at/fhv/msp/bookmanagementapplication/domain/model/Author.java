@@ -10,6 +10,7 @@ public class Author {
     private String lastName;
     private Set<Book> books;
 
+    @SuppressWarnings("unused")
     private Author() {}
 
     public Author(String firstName, String lastName) {
@@ -54,6 +55,10 @@ public class Author {
         this.books.add(book);
     }
 
+    public void removeBook(Book book) {
+        this.books.remove(book);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -66,6 +71,4 @@ public class Author {
     public int hashCode() {
         return Objects.hash(firstName, lastName);
     }
-
-
 }
