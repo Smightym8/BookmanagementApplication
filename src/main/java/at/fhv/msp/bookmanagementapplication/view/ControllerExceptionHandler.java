@@ -69,6 +69,16 @@ public class ControllerExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponseDto);
     }
 
+    @ExceptionHandler(InvalidAuthorUpdateException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidInvalidAuthorUpdateException(InvalidAuthorUpdateException ex) {
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
+                .withStatusCode(HttpStatus.BAD_REQUEST.value())
+                .withMessage(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponseDto);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleException(Exception ex) {
         ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()

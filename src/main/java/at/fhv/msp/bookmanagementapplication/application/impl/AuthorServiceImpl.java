@@ -4,6 +4,7 @@ import at.fhv.msp.bookmanagementapplication.application.api.AuthorService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.InvalidAuthorDeletionException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.InvalidAuthorUpdateException;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorUpdateDto;
@@ -45,16 +46,37 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     @Transactional
-    public AuthorDto updateAuthor(Long id, AuthorUpdateDto authorUpdateDto) throws AuthorNotFoundException {
-        // TODO: Remove books from author that are not in updated list and
-        //  check that no book is without author when updating author
-        // TODO: Add books from updated list that are not already in authors books list
+    public AuthorDto updateAuthor(Long id, AuthorUpdateDto authorUpdateDto) throws AuthorNotFoundException, InvalidAuthorUpdateException {
         Author author = authorRepository.findAuthorById(id).orElseThrow(
                 () -> new AuthorNotFoundException("Author with id " + id + " not found")
         );
 
+        // Update author
         author.setFirstName(authorUpdateDto.firstName());
         author.setLastName(authorUpdateDto.lastName());
+
+        // Remove books that are not in the updated list
+        List<Book> booksToRemove = author.getBooks().stream()
+                .filter(book -> !authorUpdateDto.bookIds().contains(book.getBookId()))
+                .toList();
+
+        booksToRemove.forEach(book -> {
+            if(book.getAuthors().size() == 1) {
+                throw new InvalidAuthorUpdateException("Could not remove book " + book.getTitle() +
+                        " from author " + author.getFirstName() + " " + author.getLastName());
+            } else {
+                book.removeAuthor(author);
+            }
+        });
+
+        // Add books that are in updated list but not in current books list of author
+        authorUpdateDto.bookIds().stream()
+                .map(bookId -> bookRepository.findBookById(bookId).orElseThrow(
+                        () -> new BookNotFoundException("Book with id " + bookId + " not found")
+                ))
+                .filter(book -> !author.getBooks().contains(book))
+                .toList()
+                .forEach(book -> book.addAuthor(author));
 
         return authorDtoFromAuthor(author);
     }

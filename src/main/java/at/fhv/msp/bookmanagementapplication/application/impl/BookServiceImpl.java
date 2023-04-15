@@ -79,10 +79,10 @@ public class BookServiceImpl implements BookService {
         bookToBeUpdated.setGenre(bookUpdateDto.genre());
 
         // Remove authors that are not in the updated list
-        List<Author> authorsToremove = bookToBeUpdated.getAuthors().stream()
+        List<Author> authorsToRemove = bookToBeUpdated.getAuthors().stream()
                 .filter(author -> !bookUpdateDto.authorIds().contains(author.getAuthorId()))
                 .toList();
-        authorsToremove.forEach(bookToBeUpdated::removeAuthor);
+        authorsToRemove.forEach(bookToBeUpdated::removeAuthor);
 
         // Add authors that are in updated list and not already in authors list of book
         bookUpdateDto.authorIds().stream()
