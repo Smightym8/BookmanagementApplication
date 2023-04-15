@@ -3,6 +3,7 @@ package at.fhv.msp.bookmanagementapplication.application.impl;
 import at.fhv.msp.bookmanagementapplication.application.api.AuthorService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.InvalidAuthorDeletionException;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorUpdateDto;
@@ -79,11 +80,18 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     @Transactional
-    public AuthorDto deleteAuthor(Long id) throws AuthorNotFoundException {
-        // TODO: Check that no book is without author when deleting an author
+    public AuthorDto deleteAuthor(Long id) throws AuthorNotFoundException, InvalidAuthorDeletionException {
         Author author = authorRepository.findAuthorById(id).orElseThrow(
                 () -> new AuthorNotFoundException("Author with id " + id + " not found")
         );
+
+        // Check that a book is not without authors when this author is deleted
+        author.getBooks().forEach(book -> {
+            if(book.getAuthors().size() == 1) {
+                throw new InvalidAuthorDeletionException("Could not delete author with id" + id +
+                        " because it is the only author for book " + book.getTitle());
+            }
+        });
 
         authorRepository.delete(author);
 

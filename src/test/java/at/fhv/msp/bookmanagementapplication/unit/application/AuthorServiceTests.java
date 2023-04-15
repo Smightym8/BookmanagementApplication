@@ -3,6 +3,7 @@ package at.fhv.msp.bookmanagementapplication.unit.application;
 import at.fhv.msp.bookmanagementapplication.application.api.AuthorService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.InvalidAuthorDeletionException;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorUpdateDto;
@@ -197,6 +198,27 @@ public class AuthorServiceTests {
 
         // when ... then
         assertThrows(AuthorNotFoundException.class, () -> authorService.deleteAuthor(authorId));
+    }
+
+    @Test
+    void given_authorIdAndBookHasOnlyThisAuthor_when_deleteAuthor_then_InvalidAuthorDeletionExceptionIsThrown() {
+        // given
+        Long authorId = 42L;
+        Author author = new Author("John", "Doe");
+        author.setAuthorId(authorId);
+        Book book = new Book(
+                "1234567891234",
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                "Reference book"
+        );
+        book.addAuthor(author);
+
+        Mockito.when(authorRepository.findAuthorById(authorId)).thenReturn(Optional.of(author));
+
+        // when ... then
+        assertThrows(InvalidAuthorDeletionException.class, () -> authorService.deleteAuthor(authorId));
     }
 
     @Test
