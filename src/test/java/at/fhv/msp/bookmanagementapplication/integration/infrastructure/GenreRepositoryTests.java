@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,5 +41,21 @@ public class GenreRepositoryTests {
         for(Genre genre : genresExpected) {
             assertTrue(genresActual.contains(genre));
         }
+    }
+
+    @Test
+    void given_genreInRepository_when_findGenreByName_then_returnExpectedGenre() {
+        // given
+        Long genreId = 100L;
+        Genre genreExpected = new Genre("Thriller");
+
+        // when
+        Optional<Genre> genreOpt = genreRepository.findGenreById(genreId);
+
+        // then
+        assertTrue(genreOpt.isPresent());
+
+        Genre genreActual = genreOpt.get();
+        assertEquals(genreExpected, genreActual);
     }
 }

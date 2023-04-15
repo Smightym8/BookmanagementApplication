@@ -70,13 +70,23 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(InvalidAuthorUpdateException.class)
-    public ResponseEntity<ErrorResponseDto> handleInvalidInvalidAuthorUpdateException(InvalidAuthorUpdateException ex) {
+    public ResponseEntity<ErrorResponseDto> handleInvalidAuthorUpdateException(InvalidAuthorUpdateException ex) {
         ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
                 .withStatusCode(HttpStatus.BAD_REQUEST.value())
                 .withMessage(ex.getMessage())
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponseDto);
+    }
+
+    @ExceptionHandler(GenreNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleGenreNotFoundException(GenreNotFoundException ex) {
+        ErrorResponseDto errorResponseDto = ErrorResponseDto.builder()
+                .withStatusCode(HttpStatus.NOT_FOUND.value())
+                .withMessage(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponseDto);
     }
 
     @ExceptionHandler(Exception.class)

@@ -8,6 +8,7 @@ import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class HibernateGenreRepository implements GenreRepository {
@@ -18,5 +19,13 @@ public class HibernateGenreRepository implements GenreRepository {
     public List<Genre> findAllGenres() {
         TypedQuery<Genre> query = this.em.createQuery("SELECT g from Genre g", Genre.class);
         return query.getResultList();
+    }
+
+    @Override
+    public Optional<Genre> findGenreById(Long id) {
+        TypedQuery<Genre> query = this.em.createQuery("FROM Genre as g WHERE g.genreId = :genreId", Genre.class);
+        query.setParameter("genreId", id);
+
+        return query.getResultStream().findFirst();
     }
 }
