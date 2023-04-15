@@ -6,6 +6,7 @@ import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateD
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorUpdateDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
+import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,9 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public AuthorDto updateAuthor(Long id, AuthorUpdateDto authorUpdateDto) throws AuthorNotFoundException {
+        // TODO: Remove books from author that are not in updated list and
+        //  check that no book is without author when updating author
+        // TODO: Add books from updated list that are not already in authors books list
         Author author = authorRepository.findAuthorById(id).orElseThrow(
                 () -> new AuthorNotFoundException("Author with id " + id + " not found")
         );
@@ -52,6 +56,8 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public Long createAuthor(AuthorCreateDto authorCreateDto) {
+        // TODO: Add bookIds to authorCreateDto
+        // TODO: Get books by id and add author to book
         Author author = authorFromAuthorCreateDto(authorCreateDto);
 
         authorRepository.add(author);
@@ -62,6 +68,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public AuthorDto deleteAuthor(Long id) throws AuthorNotFoundException {
+        // TODO: Check that no book is without author when deleting an author
         Author author = authorRepository.findAuthorById(id).orElseThrow(
                 () -> new AuthorNotFoundException("Author with id " + id + " not found")
         );
@@ -76,6 +83,11 @@ public class AuthorServiceImpl implements AuthorService {
                 .withId(author.getAuthorId())
                 .withFirstName(author.getFirstName())
                 .withLastName(author.getLastName())
+                .withBookNames(author.getBooks()
+                        .stream()
+                        .map(Book::getTitle)
+                        .toList()
+                )
                 .build();
     }
 

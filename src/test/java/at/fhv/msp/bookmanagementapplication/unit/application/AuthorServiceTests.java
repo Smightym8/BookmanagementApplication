@@ -6,15 +6,17 @@ import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateD
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorUpdateDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
+import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,6 +68,14 @@ public class AuthorServiceTests {
         Long authorIdExpected = 42L;
         Author authorExpected = new Author("John", "Doe");
         authorExpected.setAuthorId(authorIdExpected);
+        Book bookExpected =new Book(
+                "1234567891234",
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                "Reference book"
+        );
+        bookExpected.addAuthor(authorExpected);
 
         Mockito.when(authorRepository.findAuthorById(authorIdExpected)).thenReturn(Optional.of(authorExpected));
 
@@ -75,6 +85,7 @@ public class AuthorServiceTests {
         // then
         assertEquals(authorExpected.getFirstName(), authorActual.firstName());
         assertEquals(authorExpected.getLastName(), authorActual.lastName());
+        assertTrue(authorActual.bookNames().contains(bookExpected.getTitle()));
     }
 
     @Test

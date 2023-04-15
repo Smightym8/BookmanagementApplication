@@ -91,6 +91,7 @@ public class BookServiceTests {
     @Test
     void given_bookInRepository_when_getBookById_then_return_expectedDto() {
         // given
+        Author author = new Author("John", "Doe");
         Long bookId = 1L;
         Book bookExpected =new Book(
                 "1234567891234",
@@ -100,6 +101,7 @@ public class BookServiceTests {
                 "Reference book"
         );
         bookExpected.setBookId(bookId);
+        bookExpected.addAuthor(author);
 
         Mockito.when(bookRepository.findBookById(bookId)).thenReturn(Optional.of(bookExpected));
 
@@ -113,6 +115,7 @@ public class BookServiceTests {
         assertEquals(bookExpected.getPublicationDate(), bookActual.publicationDate());
         assertEquals(bookExpected.getPrice(), bookActual.price());
         assertEquals(bookExpected.getGenre(), bookActual.genre());
+        assertTrue(bookActual.authorNames().contains(author.getFirstName() + " " + author.getLastName()));
     }
 
     @Test
@@ -128,6 +131,7 @@ public class BookServiceTests {
     @Test
     void given_bookInRepository_when_getBookByIsbn_then_return_expectedDto() {
         // given
+        Author author = new Author("Max", "Mustermann");
         Long bookId = 1L;
         String isbnExpected = "1234567891234";
         Book bookExpected =new Book(
@@ -138,6 +142,7 @@ public class BookServiceTests {
                 "Reference book"
         );
         bookExpected.setBookId(bookId);
+        bookExpected.addAuthor(author);
 
         Mockito.when(bookRepository.findBookByIsbn(isbnExpected)).thenReturn(Optional.of(bookExpected));
 
@@ -151,6 +156,7 @@ public class BookServiceTests {
         assertEquals(bookExpected.getPublicationDate(), bookActual.publicationDate());
         assertEquals(bookExpected.getPrice(), bookActual.price());
         assertEquals(bookExpected.getGenre(), bookActual.genre());
+        assertTrue(bookActual.authorNames().contains(author.getFirstName() + " " + author.getLastName()));
     }
 
     @Test
