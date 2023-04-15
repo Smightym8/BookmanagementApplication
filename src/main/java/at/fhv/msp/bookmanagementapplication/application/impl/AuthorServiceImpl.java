@@ -2,12 +2,14 @@ package at.fhv.msp.bookmanagementapplication.application.impl;
 
 import at.fhv.msp.bookmanagementapplication.application.api.AuthorService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorUpdateDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
+import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,9 @@ import java.util.stream.Collectors;
 public class AuthorServiceImpl implements AuthorService {
     @Autowired
     private AuthorRepository authorRepository;
+
+    @Autowired
+    private BookRepository bookRepository;
 
     @Override
     public List<AuthorDto> getAllAuthors() {
@@ -55,10 +60,17 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     @Transactional
-    public Long createAuthor(AuthorCreateDto authorCreateDto) {
-        // TODO: Add bookIds to authorCreateDto
-        // TODO: Get books by id and add author to book
+    public Long createAuthor(AuthorCreateDto authorCreateDto) throws BookNotFoundException {
         Author author = authorFromAuthorCreateDto(authorCreateDto);
+
+        // Add books to author
+        authorCreateDto.bookIds()
+                .stream()
+                .map(bookId -> bookRepository.findBookById(bookId).orElseThrow(
+                        () -> new BookNotFoundException("Book with id " + bookId + " not found")
+                ))
+                .toList()
+                .forEach(book -> book.addAuthor(author));
 
         authorRepository.add(author);
 

@@ -2,14 +2,17 @@ package at.fhv.msp.bookmanagementapplication.unit.application;
 
 import at.fhv.msp.bookmanagementapplication.application.api.AuthorService;
 import at.fhv.msp.bookmanagementapplication.application.api.exception.AuthorNotFoundException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorUpdateDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
+import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +20,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +35,9 @@ public class AuthorServiceTests {
 
     @MockBean
     private AuthorRepository authorRepository;
+
+    @MockBean
+    private BookRepository bookRepository;
 
     @Test
     void given_4authorsInRepository_when_getAllAuthors_then_return_expectedDtos() {
@@ -104,6 +112,7 @@ public class AuthorServiceTests {
         AuthorCreateDto authorCreateDto = AuthorCreateDto.builder()
                 .withFirstName("John")
                 .withLastName("Doe")
+                .withBookIds(Collections.emptyList())
                 .build();
 
         Author author = new Author(authorCreateDto.firstName(), authorCreateDto.lastName());
@@ -115,6 +124,51 @@ public class AuthorServiceTests {
 
         // then
         Mockito.verify(authorRepository, Mockito.times(1)).add(author);
+    }
+
+    @Test
+    void given_authorCreateDtoWithBookId_when_createAuthor_then_addIsCalled() {
+        // given
+        Long bookId = 1L;
+        Book bookExpected =new Book(
+                "1234567891234",
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                "Reference book"
+        );
+        AuthorCreateDto authorCreateDto = AuthorCreateDto.builder()
+                .withFirstName("John")
+                .withLastName("Doe")
+                .withBookIds(List.of(bookId))
+                .build();
+
+        Author author = new Author(authorCreateDto.firstName(), authorCreateDto.lastName());
+
+        Mockito.when(bookRepository.findBookById(bookId)).thenReturn(Optional.of(bookExpected));
+        Mockito.doNothing().when(authorRepository).add(author);
+
+        // when
+        authorService.createAuthor(authorCreateDto);
+
+        // then
+        Mockito.verify(authorRepository, Mockito.times(1)).add(author);
+    }
+
+    @Test
+    void given_authorCreateDtoWithNonExistentBookId_when_createAuthor_then_BookNotFoundExceptionIsThrown() {
+        // given
+        Long bookId = 1L;
+        AuthorCreateDto authorCreateDto = AuthorCreateDto.builder()
+                .withFirstName("John")
+                .withLastName("Doe")
+                .withBookIds(List.of(bookId))
+                .build();
+
+        Mockito.when(bookRepository.findBookById(bookId)).thenReturn(Optional.empty());
+
+        // when ... then
+        assertThrows(BookNotFoundException.class, () -> authorService.createAuthor(authorCreateDto));
     }
 
     @Test
