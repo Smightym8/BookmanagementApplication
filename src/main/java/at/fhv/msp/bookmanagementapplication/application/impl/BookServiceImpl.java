@@ -78,7 +78,6 @@ public class BookServiceImpl implements BookService {
         }
 
         // Update book
-        // TODO: Test exception
         Genre genre = genreRepository.findGenreById(bookUpdateDto.genreId()).orElseThrow(
                 () -> new GenreNotFoundException("Genre with id " + bookUpdateDto.genreId() + " not found")
         );

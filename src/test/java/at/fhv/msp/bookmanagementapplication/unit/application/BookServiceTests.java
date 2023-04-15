@@ -300,6 +300,83 @@ public class BookServiceTests {
     }
 
     @Test
+    void given_bookIdAndBookUpdateDto_withNonExistentGenreId_when_updateBook_then_GenreNotFoundExceptionIsThrown() {
+        // given
+        BigDecimal priceExpected = new BigDecimal("12.99");
+
+        Author author = new Author("John", "Doe");
+        author.setAuthorId(42L);
+
+        Genre genre = new Genre("Reference book");
+        genre.setGenreId(100L);
+        Book book = new Book(
+                "1234567891234",
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                genre
+        );
+        book.setBookId(42L);
+        book.addAuthor(author);
+
+        BookUpdateDto bookUpdateDto = BookUpdateDto.builder()
+                .withIsbn(book.getIsbn())
+                .withTitle(book.getTitle())
+                .withPublicationDate(book.getPublicationDate())
+                .withPrice(priceExpected)
+                .withGenreId(book.getGenre().getGenreId())
+                .withAuthorIds(List.of(author.getAuthorId()))
+                .build();
+
+        Mockito.when(bookRepository.findBookById(book.getBookId())).thenReturn(Optional.of(book));
+        Mockito.when(bookRepository.findBookByIsbn(book.getIsbn())).thenReturn(Optional.of(book));
+        Mockito.when(genreRepository.findGenreById(genre.getGenreId())).thenReturn(Optional.empty());
+
+        // when
+        assertThrows(GenreNotFoundException.class, () -> bookService.updateBook(book.getBookId(), bookUpdateDto));
+    }
+
+    @Test
+    void given_bookIdAndBookUpdateDto_withNonExistentAuthorId_when_updateBook_then_AuthorNotFoundExceptionIsThrown() {
+        // given
+        BigDecimal priceExpected = new BigDecimal("12.99");
+
+        Author authorBeforeUpdate = new Author("John", "Doe");
+        authorBeforeUpdate.setAuthorId(42L);
+        Author authorAfterUpdate = new Author("Jane", "Doe");
+        authorAfterUpdate.setAuthorId(43L);
+
+        Genre genre = new Genre("Reference book");
+        genre.setGenreId(100L);
+        Book book = new Book(
+                "1234567891234",
+                "A reference book",
+                LocalDate.of(2011,4,20),
+                new BigDecimal("38.93"),
+                genre
+        );
+        book.setBookId(42L);
+        book.addAuthor(authorBeforeUpdate);
+
+        BookUpdateDto bookUpdateDto = BookUpdateDto.builder()
+                .withIsbn(book.getIsbn())
+                .withTitle(book.getTitle())
+                .withPublicationDate(book.getPublicationDate())
+                .withPrice(priceExpected)
+                .withGenreId(book.getGenre().getGenreId())
+                .withAuthorIds(List.of(authorAfterUpdate.getAuthorId()))
+                .build();
+
+        Mockito.when(bookRepository.findBookById(book.getBookId())).thenReturn(Optional.of(book));
+        Mockito.when(bookRepository.findBookByIsbn(book.getIsbn())).thenReturn(Optional.of(book));
+        Mockito.when(genreRepository.findGenreById(genre.getGenreId())).thenReturn(Optional.of(genre));
+        Mockito.when(authorRepository.findAuthorById(authorAfterUpdate.getAuthorId())).thenReturn(Optional.empty());
+
+        // when ... then
+        assertThrows(AuthorNotFoundException.class, () -> bookService.updateBook(book.getBookId(), bookUpdateDto));
+    }
+
+    @Test
     void given_bookId_when_deleteBook_then_deleteIsCalled() {
         // given
         Long bookId = 42L;
@@ -436,5 +513,29 @@ public class BookServiceTests {
 
         // when ... then
         assertThrows(InvalidBookCreationException.class, () -> bookService.createBook(bookCreateDto));
+    }
+
+    @Test
+    void given_bookCreateDtoWithNonExistentGenreId_when_createBook_then_GenreNotFoundExceptionIsThrown() {
+        // given
+        Long authorId = 42L;
+        Genre genre = new Genre("Horror");
+        genre.setGenreId(100L);
+
+        BookCreateDto bookCreateDto = BookCreateDto.builder()
+                .withIsbn("1234567891234")
+                .withTitle("A title")
+                .withPublicationDate(LocalDate.now())
+                .withPrice(new BigDecimal("9.99"))
+                .withGenreId(genre.getGenreId())
+                .withAuthorIds(List.of(authorId))
+                .build();
+
+
+        Mockito.when(bookRepository.findBookByIsbn(bookCreateDto.isbn())).thenReturn(Optional.empty());
+        Mockito.when(genreRepository.findGenreById(genre.getGenreId())).thenReturn(Optional.empty());
+
+        // when
+        assertThrows(GenreNotFoundException.class, () -> bookService.createBook(bookCreateDto));
     }
 }
