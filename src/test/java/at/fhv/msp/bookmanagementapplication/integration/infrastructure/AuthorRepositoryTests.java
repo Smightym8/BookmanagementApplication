@@ -2,6 +2,7 @@ package at.fhv.msp.bookmanagementapplication.integration.infrastructure;
 
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
+import at.fhv.msp.bookmanagementapplication.domain.model.Genre;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
@@ -40,21 +41,21 @@ public class AuthorRepositoryTests {
             "A reference book",
             LocalDate.of(2011,4,20),
             new BigDecimal("38.93"),
-            "Reference book"
+            new Genre("Reference book")
         );
         Book novelBook = new Book(
             "9876543211234",
             "The novel book",
             LocalDate.of(2020,1,1),
             new BigDecimal("58.59"),
-            "Novel"
+            new Genre("Novel")
         );
         Book horrorBook = new Book(
             "9874123658529",
             "A horror book",
             LocalDate.of(2018,11,29),
             new BigDecimal("34.95"),
-            "Horror"
+            new Genre("Horror")
         );
 
         referenceBook.addAuthor(authorsExpected.get(2));
@@ -94,7 +95,7 @@ public class AuthorRepositoryTests {
                 "A horror book",
                 LocalDate.of(2018,11,29),
                 new BigDecimal("34.95"),
-                "Horror"
+                new Genre("Horror")
         );
 
         // when

@@ -12,7 +12,7 @@ public class BookCreateDto {
     private String title;
     private LocalDate publicationDate;
     private BigDecimal price;
-    private String genre;
+    private Long genreId;
     private List<Long> authorIds;
 
     public static Builder builder() {
@@ -40,8 +40,8 @@ public class BookCreateDto {
     }
 
     @JsonGetter
-    public String genre() {
-        return genre;
+    public Long genreId() {
+        return genreId;
     }
 
     @JsonGetter
@@ -76,8 +76,8 @@ public class BookCreateDto {
             return this;
         }
 
-        public Builder withGenre(String genre) {
-            this.instance.genre = genre;
+        public Builder withGenreId(Long genreId) {
+            this.instance.genreId = genreId;
             return this;
         }
 
@@ -91,7 +91,7 @@ public class BookCreateDto {
             Objects.requireNonNull(this.instance.title, "title must be set in BookCreateDto");
             Objects.requireNonNull(this.instance.publicationDate, "publicationDate must be set in BookCreateDto");
             Objects.requireNonNull(this.instance.price, "price must be set in BookCreateDto");
-            Objects.requireNonNull(this.instance.genre, "genre must be set in BookCreateDto");
+            Objects.requireNonNull(this.instance.genreId, "genreId must be set in BookCreateDto");
             Objects.requireNonNull(this.instance.authorIds, "authorIds must be set in BookCreateDto");
 
             return this.instance;

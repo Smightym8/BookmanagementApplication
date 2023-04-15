@@ -12,14 +12,14 @@ public class Book {
     private String title;
     private LocalDate publicationDate;
     private BigDecimal price;
-    private String genre;
+    private Genre genre;
     private Set<Author> authors;
 
     @SuppressWarnings("unused")
     private Book() {
     }
 
-    public Book(String isbn, String title, LocalDate publicationDate, BigDecimal price, String genre) {
+    public Book(String isbn, String title, LocalDate publicationDate, BigDecimal price, Genre genre) {
         this.isbn = isbn;
         this.title = title;
         this.publicationDate = publicationDate;
@@ -68,11 +68,11 @@ public class Book {
         this.price = price;
     }
 
-    public String getGenre() {
+    public Genre getGenre() {
         return genre;
     }
 
-    public void setGenre(String genre) {
+    public void setGenre(Genre genre) {
         this.genre = genre;
     }
 
