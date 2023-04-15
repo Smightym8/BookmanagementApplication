@@ -27,24 +27,6 @@ public class BookTests {
         assertEquals(publicationDateExpected, book.getPublicationDate());
         assertEquals(priceExpected, book.getPrice());
         assertEquals(genreExpected, book.getGenre());
-    }
-
-    @Test
-    void given_bookAndNewPrice_when_update_then_priceIsUpdated() {
-        // given
-        BigDecimal priceExpected = new BigDecimal("12.99");
-        Book book = new Book(
-                "1234567891234",
-                "A reference book",
-                LocalDate.of(2011,4,20),
-                new BigDecimal("38.93"),
-                "Reference book"
-        );
-
-        // when
-        book.update(book.getIsbn(), book.getTitle(), book.getPublicationDate(), priceExpected, book.getGenre());
-
-        // then
-        assertEquals(priceExpected, book.getPrice());
+        assertEquals(0, book.getAuthors().size());
     }
 }

@@ -12,5 +12,10 @@
 
         <property name="firstName" column="first_name" type="java.lang.String" />
         <property name="lastName" column="last_name" type="java.lang.String" />
+
+        <set name="books" table="written_by" inverse="true" lazy="true" fetch="select" cascade="save-update">
+            <key column="author_id"/>
+            <many-to-many column="book_id" class="at.fhv.msp.bookmanagementapplication.domain.model.Book"/>
+        </set>
     </class>
 </hibernate-mapping>

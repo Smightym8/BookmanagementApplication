@@ -2,12 +2,14 @@ package at.fhv.msp.bookmanagementapplication.application.dto.author;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 
+import java.util.List;
 import java.util.Objects;
 
 public class AuthorDto {
     private Long id;
     private String firstName;
     private String lastName;
+    private List<String> bookNames;
 
     @JsonGetter
     public Long id() {
@@ -22,6 +24,11 @@ public class AuthorDto {
     @JsonGetter
     public String lastName() {
         return lastName;
+    }
+
+    @JsonGetter
+    public List<String> bookNames() {
+        return bookNames;
     }
 
     public static Builder builder() {
@@ -52,10 +59,16 @@ public class AuthorDto {
             return this;
         }
 
+        public Builder withBookNames(List<String> bookNames) {
+            this.instance.bookNames = bookNames;
+            return this;
+        }
+
         public AuthorDto build() {
             Objects.requireNonNull(this.instance.id, "id must be set in AuthorDto");
             Objects.requireNonNull(this.instance.firstName, "firstName must be set in AuthorDto");
             Objects.requireNonNull(this.instance.lastName, "lastName must be set in AuthorDto");
+            Objects.requireNonNull(this.instance.bookNames, "bookNames must be set in AuthorDto");
 
             return this.instance;
         }

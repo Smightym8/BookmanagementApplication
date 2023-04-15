@@ -2,12 +2,13 @@ package at.fhv.msp.bookmanagementapplication.application.impl;
 
 
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
-import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
-import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.*;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookUpdateDto;
+import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
+import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ import java.util.stream.Collectors;
 public class BookServiceImpl implements BookService {
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private AuthorRepository authorRepository;
 
     @Override
     public List<BookDto> getAllBooks() {
@@ -51,7 +55,11 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) throws BookNotFoundException, IsbnAlreadyExistsException {
+    public BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) throws BookNotFoundException, IsbnAlreadyExistsException, InvalidBookUpdateException {
+        if(bookUpdateDto.authorIds().size() == 0) {
+            throw new InvalidBookUpdateException("Can not create book without author");
+        }
+
         Book bookToBeUpdated = bookRepository.findBookById(id).orElseThrow(
                 () -> new BookNotFoundException("Book with id " + id + " not found")
         );
@@ -63,14 +71,27 @@ public class BookServiceImpl implements BookService {
             throw new IsbnAlreadyExistsException("There is already a book with isbn " + bookUpdateDto.isbn());
         }
 
-        // TODO: Remove update method and use setters instead
-        bookToBeUpdated.update(
-                bookToBeUpdated.getIsbn(),
-                bookUpdateDto.title(),
-                bookUpdateDto.publicationDate(),
-                bookUpdateDto.price(),
-                bookUpdateDto.genre()
-        );
+        // Update book
+        bookToBeUpdated.setIsbn(bookUpdateDto.isbn());
+        bookToBeUpdated.setTitle(bookUpdateDto.title());
+        bookToBeUpdated.setPublicationDate(bookUpdateDto.publicationDate());
+        bookToBeUpdated.setPrice(bookUpdateDto.price());
+        bookToBeUpdated.setGenre(bookUpdateDto.genre());
+
+        // Remove authors that are not in the updated list
+        List<Author> authorsToRemove = bookToBeUpdated.getAuthors().stream()
+                .filter(author -> !bookUpdateDto.authorIds().contains(author.getAuthorId()))
+                .toList();
+        authorsToRemove.forEach(bookToBeUpdated::removeAuthor);
+
+        // Add authors that are in updated list and not already in authors list of book
+        bookUpdateDto.authorIds().stream()
+                .map(authorId -> authorRepository.findAuthorById(authorId).orElseThrow(
+                        () -> new AuthorNotFoundException("Author with id " + authorId + " not found")
+                ))
+                .filter(author -> !bookToBeUpdated.getAuthors().contains(author))
+                .toList()
+                .forEach(bookToBeUpdated::addAuthor);
 
         return bookDtoFromBook(bookToBeUpdated);
     }
@@ -89,7 +110,11 @@ public class BookServiceImpl implements BookService {
     
     @Override
     @Transactional
-    public Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException {
+    public Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException, AuthorNotFoundException, InvalidBookCreationException {
+        if(bookCreateDto.authorIds().size() == 0) {
+            throw new InvalidBookCreationException("Can not create book without author");
+        }
+
         // Check if there is already a book with provided isbn
         Optional<Book> bookForProvidedIsbn = bookRepository.findBookByIsbn(bookCreateDto.isbn());
 
@@ -98,6 +123,16 @@ public class BookServiceImpl implements BookService {
         }
 
         Book bookToCreate = bookFromBookCreateDto(bookCreateDto);
+
+        // Get authors by id and add them to book
+        bookCreateDto.authorIds()
+                .stream()
+                .map(
+                    authorId -> authorRepository.findAuthorById(authorId).orElseThrow(
+                        () -> new AuthorNotFoundException("Author with id " + authorId + " not found")
+                    )
+                )
+                .forEach(bookToCreate::addAuthor);
 
         bookRepository.add(bookToCreate);
 
@@ -112,6 +147,12 @@ public class BookServiceImpl implements BookService {
                 .withPublicationDate(book.getPublicationDate())
                 .withPrice(book.getPrice())
                 .withGenre(book.getGenre())
+                .withAuthorNames(
+                    book.getAuthors()
+                            .stream()
+                            .map(author -> author.getFirstName() + " " + author.getLastName())
+                            .collect(Collectors.toList())
+                )
                 .build();
     }
 

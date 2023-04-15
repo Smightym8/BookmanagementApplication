@@ -1,6 +1,8 @@
 package at.fhv.msp.bookmanagementapplication.integration.infrastructure;
 
+import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
+import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,9 @@ public class BookRepositoryTests {
 
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private AuthorRepository authorRepository;
 
     @Test
     void given_3books_in_repository_when_findAllBooks_then_returnEqualBooks() {
@@ -51,6 +56,17 @@ public class BookRepositoryTests {
             )
         );
 
+        Author mariaMusterfrau = new Author("Maria", "Musterfrau");
+        Author maxMustermann = new Author("Max", "Mustermann");
+        Author janeDoe = new Author("Jane", "Doe");
+        Author johnDoe = new Author("John", "Doe");
+
+        booksExpected.get(0).addAuthor(mariaMusterfrau);
+        booksExpected.get(0).addAuthor(maxMustermann);
+        booksExpected.get(1).addAuthor(janeDoe);
+        booksExpected.get(2).addAuthor(janeDoe);
+        booksExpected.get(2).addAuthor(johnDoe);
+
         // when
         List<Book> booksActual = bookRepository.findAllBooks();
 
@@ -66,6 +82,10 @@ public class BookRepositoryTests {
             assertEquals(bookExpected.getPublicationDate(), bookActual.getPublicationDate());
             assertEquals(bookExpected.getPrice(), bookActual.getPrice());
             assertEquals(bookExpected.getGenre(), bookActual.getGenre());
+
+            for(Author author : bookExpected.getAuthors()) {
+                assertTrue(bookActual.getAuthors().contains(author));
+            }
         }
     }
 
@@ -82,6 +102,11 @@ public class BookRepositoryTests {
         );
         bookExpected.setBookId(bookIdExpected);
 
+        Author mariaMusterfrau = new Author("Maria", "Musterfrau");
+        Author maxMustermann = new Author("Max", "Mustermann");
+        bookExpected.addAuthor(mariaMusterfrau);
+        bookExpected.addAuthor(maxMustermann);
+
         // when
         Optional<Book> bookOpt = bookRepository.findBookById(bookIdExpected);
 
@@ -95,6 +120,10 @@ public class BookRepositoryTests {
         assertEquals(bookExpected.getPublicationDate(), bookActual.getPublicationDate());
         assertEquals(bookExpected.getPrice(), bookActual.getPrice());
         assertEquals(bookExpected.getGenre(), bookActual.getGenre());
+
+        for(Author author : bookExpected.getAuthors()) {
+            assertTrue(bookActual.getAuthors().contains(author));
+        }
     }
 
     @Test
@@ -111,6 +140,11 @@ public class BookRepositoryTests {
         );
         bookExpected.setBookId(bookIdExpected);
 
+        Author mariaMusterfrau = new Author("Maria", "Musterfrau");
+        Author maxMustermann = new Author("Max", "Mustermann");
+        bookExpected.addAuthor(mariaMusterfrau);
+        bookExpected.addAuthor(maxMustermann);
+
         // when
         Optional<Book> bookOpt = bookRepository.findBookByIsbn(isbnExpected);
 
@@ -124,6 +158,10 @@ public class BookRepositoryTests {
         assertEquals(bookExpected.getPublicationDate(), bookActual.getPublicationDate());
         assertEquals(bookExpected.getPrice(), bookActual.getPrice());
         assertEquals(bookExpected.getGenre(), bookActual.getGenre());
+
+        for(Author author : bookExpected.getAuthors()) {
+            assertTrue(bookActual.getAuthors().contains(author));
+        }
     }
 
     @Test
@@ -141,8 +179,9 @@ public class BookRepositoryTests {
     }
     
     @Test
-    void given_book_when_add_then_bookIsSaved() {
+    void given_bookAndNewAuthor_when_add_then_bookIsSaved() {
         // given
+        Author author = new Author("Author", "Author");
         String isbnExpected = "1234567895437";
         Book bookExpected =  new Book(
                 isbnExpected,
@@ -152,6 +191,37 @@ public class BookRepositoryTests {
                 "Novel"
         );
 
+        bookExpected.addAuthor(author);
+
+        // when
+        bookRepository.add(bookExpected);
+        authorRepository.add(author);
+        em.flush();
+        Optional<Book> bookOpt = bookRepository.findBookByIsbn(isbnExpected);
+
+        // then
+        assertTrue(bookOpt.isPresent());
+        Book bookActual = bookOpt.get();
+        for(Author a : bookExpected.getAuthors()) {
+            assertTrue(bookActual.getAuthors().contains(a));
+        }
+    }
+
+    @Test
+    void given_bookAndExistingAuthor_when_add_then_bookIsSaved() {
+        // given
+        Author author = authorRepository.findAuthorById(100L).get();
+        String isbnExpected = "1234567895437";
+        Book bookExpected =  new Book(
+                isbnExpected,
+                "A new book",
+                LocalDate.of(1990,12,12),
+                new BigDecimal("42.00"),
+                "Novel"
+        );
+
+        bookExpected.addAuthor(author);
+
         // when
         bookRepository.add(bookExpected);
         em.flush();
@@ -159,5 +229,9 @@ public class BookRepositoryTests {
 
         // then
         assertTrue(bookOpt.isPresent());
+        Book bookActual = bookOpt.get();
+        for(Author a : bookExpected.getAuthors()) {
+            assertTrue(bookActual.getAuthors().contains(a));
+        }
     }
 }
