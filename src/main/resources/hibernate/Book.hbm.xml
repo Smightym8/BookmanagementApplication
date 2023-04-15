@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-access="field" default-cascade="all">
+    <class name="at.fhv.msp.bookmanagementapplication.domain.model.Book" table="book" lazy="true">
+        <cache usage="read-write"/>
+
+        <!-- Hibernate id -->
+        <id name="bookId" type="long" column="book_id" unsaved-value="-1">
+            <generator class="identity"/>
+        </id>
+
+        <property name="isbn" column="isbn" type="java.lang.String" />
+        <property name="title" column="title" type="java.lang.String" />
+        <property name="publicationDate" column="publication_date" type="java.time.LocalDate" />
+        <property name="price" column="price" type="java.math.BigDecimal" />
+        <property name="genre" column="genre" type="java.lang.String" />
+
+        <set name="authors" table="written_by" lazy="true" fetch="select" cascade="save-update">
+            <key column="book_id"/>
+            <many-to-many column="author_id" class="at.fhv.msp.bookmanagementapplication.domain.model.Author"/>
+        </set>
+    </class>
+</hibernate-mapping>
