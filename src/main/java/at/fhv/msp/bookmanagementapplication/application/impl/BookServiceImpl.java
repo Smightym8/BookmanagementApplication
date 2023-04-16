@@ -8,8 +8,10 @@ import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookUpdateDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
+import at.fhv.msp.bookmanagementapplication.domain.model.Genre;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
+import at.fhv.msp.bookmanagementapplication.domain.repository.GenreRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,9 @@ public class BookServiceImpl implements BookService {
 
     @Autowired
     private AuthorRepository authorRepository;
+
+    @Autowired
+    private GenreRepository genreRepository;
 
     @Override
     public List<BookDto> getAllBooks() {
@@ -55,7 +60,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) throws BookNotFoundException, IsbnAlreadyExistsException, InvalidBookUpdateException {
+    public BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) throws BookNotFoundException,
+            IsbnAlreadyExistsException, InvalidBookUpdateException, GenreNotFoundException {
         if(bookUpdateDto.authorIds().size() == 0) {
             throw new InvalidBookUpdateException("Can not create book without author");
         }
@@ -72,11 +78,15 @@ public class BookServiceImpl implements BookService {
         }
 
         // Update book
+        Genre genre = genreRepository.findGenreById(bookUpdateDto.genreId()).orElseThrow(
+                () -> new GenreNotFoundException("Genre with id " + bookUpdateDto.genreId() + " not found")
+        );
+
         bookToBeUpdated.setIsbn(bookUpdateDto.isbn());
         bookToBeUpdated.setTitle(bookUpdateDto.title());
         bookToBeUpdated.setPublicationDate(bookUpdateDto.publicationDate());
         bookToBeUpdated.setPrice(bookUpdateDto.price());
-        bookToBeUpdated.setGenre(bookUpdateDto.genre());
+        bookToBeUpdated.setGenre(genre);
 
         // Remove authors that are not in the updated list
         List<Author> authorsToRemove = bookToBeUpdated.getAuthors().stream()
@@ -110,7 +120,8 @@ public class BookServiceImpl implements BookService {
     
     @Override
     @Transactional
-    public Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException, AuthorNotFoundException, InvalidBookCreationException {
+    public Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException, AuthorNotFoundException,
+            InvalidBookCreationException, GenreNotFoundException {
         if(bookCreateDto.authorIds().size() == 0) {
             throw new InvalidBookCreationException("Can not create book without author");
         }
@@ -146,7 +157,7 @@ public class BookServiceImpl implements BookService {
                 .withTitle(book.getTitle())
                 .withPublicationDate(book.getPublicationDate())
                 .withPrice(book.getPrice())
-                .withGenre(book.getGenre())
+                .withGenre(book.getGenre().getName())
                 .withAuthorNames(
                     book.getAuthors()
                             .stream()
@@ -156,13 +167,18 @@ public class BookServiceImpl implements BookService {
                 .build();
     }
 
-    private Book bookFromBookCreateDto(BookCreateDto bookCreateDto) {
+    private Book bookFromBookCreateDto(BookCreateDto bookCreateDto) throws GenreNotFoundException {
+        // TODO: Test exception
+        Genre genre = genreRepository.findGenreById(bookCreateDto.genreId()).orElseThrow(
+                () -> new GenreNotFoundException("Genre with id " + bookCreateDto.genreId() + " not found")
+        );
+
         return new Book(
             bookCreateDto.isbn(),
             bookCreateDto.title(),
             bookCreateDto.publicationDate(),
             bookCreateDto.price(),
-            bookCreateDto.genre()
+            genre
         );
     }
 }

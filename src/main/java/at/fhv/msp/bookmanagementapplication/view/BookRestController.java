@@ -1,8 +1,7 @@
 package at.fhv.msp.bookmanagementapplication.view;
 
 import at.fhv.msp.bookmanagementapplication.application.api.BookService;
-import at.fhv.msp.bookmanagementapplication.application.api.exception.BookNotFoundException;
-import at.fhv.msp.bookmanagementapplication.application.api.exception.IsbnAlreadyExistsException;
+import at.fhv.msp.bookmanagementapplication.application.api.exception.*;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookCreateDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.book.BookUpdateDto;
@@ -50,7 +49,8 @@ public class BookRestController {
     }
     
     @PostMapping
-    public ResponseEntity<Void> createBook(@RequestBody BookCreateDto bookCreateDto, HttpServletRequest request) throws IsbnAlreadyExistsException {
+    public ResponseEntity<Void> createBook(@RequestBody BookCreateDto bookCreateDto, HttpServletRequest request)
+            throws IsbnAlreadyExistsException, AuthorNotFoundException, InvalidBookCreationException, GenreNotFoundException {
         Long createdBookId = bookService.createBook(bookCreateDto);
         URI location = ServletUriComponentsBuilder.fromRequestUri(request).path("/{id}")
                 .buildAndExpand(createdBookId).toUri();
@@ -59,7 +59,8 @@ public class BookRestController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<BookDto> updateBook(@PathVariable Long id, @RequestBody BookUpdateDto bookUpdateDto) throws BookNotFoundException, IsbnAlreadyExistsException {
+    public ResponseEntity<BookDto> updateBook(@PathVariable Long id, @RequestBody BookUpdateDto bookUpdateDto)
+            throws BookNotFoundException, IsbnAlreadyExistsException, InvalidBookUpdateException, GenreNotFoundException {
         BookDto updatedBook = bookService.updateBook(id, bookUpdateDto);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(updatedBook);
