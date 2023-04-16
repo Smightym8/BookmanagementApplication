@@ -1,6 +1,7 @@
 package at.fhv.msp.bookmanagementapplication.unit.domain;
 
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
+import at.fhv.msp.bookmanagementapplication.domain.model.Genre;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -16,7 +17,7 @@ public class BookTests {
         String titleExpected = "A Book";
         LocalDate publicationDateExpected = LocalDate.now();
         BigDecimal priceExpected = new BigDecimal("10");
-        String genreExpected = "A genre";
+        Genre genreExpected = new Genre("A genre");
 
         // when
         Book book = new Book(isbnExpected, titleExpected, publicationDateExpected, priceExpected, genreExpected);

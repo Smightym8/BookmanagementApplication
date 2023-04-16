@@ -12,7 +12,9 @@ public interface BookService {
     List<BookDto> getAllBooks();
     BookDto getBookById(Long id) throws BookNotFoundException;
     BookDto getBookByIsbn(String isbn) throws BookNotFoundException;
-    BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) throws BookNotFoundException;
+    BookDto updateBook(Long id, BookUpdateDto bookUpdateDto) throws BookNotFoundException,
+            IsbnAlreadyExistsException, InvalidBookUpdateException, GenreNotFoundException;
     BookDto deleteBook(Long id) throws BookNotFoundException;
-    Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException, AuthorNotFoundException, InvalidBookUpdateException;
+    Long createBook(BookCreateDto bookCreateDto) throws IsbnAlreadyExistsException, AuthorNotFoundException,
+            InvalidBookCreationException, GenreNotFoundException;
 }

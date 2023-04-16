@@ -2,8 +2,10 @@ package at.fhv.msp.bookmanagementapplication.integration.infrastructure;
 
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
+import at.fhv.msp.bookmanagementapplication.domain.model.Genre;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
+import at.fhv.msp.bookmanagementapplication.domain.repository.GenreRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ public class BookRepositoryTests {
     @Autowired
     private AuthorRepository authorRepository;
 
+    @Autowired
+    private GenreRepository genreRepository;
+
     @Test
     void given_3books_in_repository_when_findAllBooks_then_returnEqualBooks() {
         // given
@@ -38,21 +43,21 @@ public class BookRepositoryTests {
                     "A reference book",
                     LocalDate.of(2011,4,20),
                     new BigDecimal("38.93"),
-                    "Reference book"
+                    new Genre("Reference book")
             ),
             new Book(
                     "9876543211234",
                     "The novel book",
                     LocalDate.of(2020,1,1),
                     new BigDecimal("58.59"),
-                    "Novel"
+                    new Genre("Novel")
             ),
             new Book(
                     "9874123658529",
                     "A horror book",
                     LocalDate.of(2018,11,29),
                     new BigDecimal("34.95"),
-                    "Horror"
+                    new Genre("Horror")
             )
         );
 
@@ -98,7 +103,7 @@ public class BookRepositoryTests {
                 "A reference book",
                 LocalDate.of(2011,4,20),
                 new BigDecimal("38.93"),
-                "Reference book"
+                new Genre("Reference book")
         );
         bookExpected.setBookId(bookIdExpected);
 
@@ -136,7 +141,7 @@ public class BookRepositoryTests {
                 "A reference book",
                 LocalDate.of(2011,4,20),
                 new BigDecimal("38.93"),
-                "Reference book"
+                new Genre("Reference book")
         );
         bookExpected.setBookId(bookIdExpected);
 
@@ -182,13 +187,14 @@ public class BookRepositoryTests {
     void given_bookAndNewAuthor_when_add_then_bookIsSaved() {
         // given
         Author author = new Author("Author", "Author");
+        Genre genre = genreRepository.findGenreById(100L).get();
         String isbnExpected = "1234567895437";
         Book bookExpected =  new Book(
                 isbnExpected,
                 "A new book",
                 LocalDate.of(1990,12,12),
                 new BigDecimal("42.00"),
-                "Novel"
+                genre
         );
 
         bookExpected.addAuthor(author);
@@ -211,13 +217,14 @@ public class BookRepositoryTests {
     void given_bookAndExistingAuthor_when_add_then_bookIsSaved() {
         // given
         Author author = authorRepository.findAuthorById(100L).get();
+        Genre genre = genreRepository.findGenreById(100L).get();
         String isbnExpected = "1234567895437";
         Book bookExpected =  new Book(
                 isbnExpected,
                 "A new book",
                 LocalDate.of(1990,12,12),
                 new BigDecimal("42.00"),
-                "Novel"
+                genre
         );
 
         bookExpected.addAuthor(author);

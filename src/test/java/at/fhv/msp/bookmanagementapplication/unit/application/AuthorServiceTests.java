@@ -10,6 +10,7 @@ import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorDto;
 import at.fhv.msp.bookmanagementapplication.application.dto.author.AuthorUpdateDto;
 import at.fhv.msp.bookmanagementapplication.domain.model.Author;
 import at.fhv.msp.bookmanagementapplication.domain.model.Book;
+import at.fhv.msp.bookmanagementapplication.domain.model.Genre;
 import at.fhv.msp.bookmanagementapplication.domain.repository.AuthorRepository;
 import at.fhv.msp.bookmanagementapplication.domain.repository.BookRepository;
 import jakarta.transaction.Transactional;
@@ -81,7 +82,7 @@ public class AuthorServiceTests {
                 "A reference book",
                 LocalDate.of(2011,4,20),
                 new BigDecimal("38.93"),
-                "Reference book"
+                new Genre("Reference book")
         );
         bookExpected.addAuthor(authorExpected);
 
@@ -135,7 +136,7 @@ public class AuthorServiceTests {
                 "A reference book",
                 LocalDate.of(2011,4,20),
                 new BigDecimal("38.93"),
-                "Reference book"
+                new Genre("Reference book")
         );
         AuthorCreateDto authorCreateDto = AuthorCreateDto.builder()
                 .withFirstName("John")
@@ -210,7 +211,7 @@ public class AuthorServiceTests {
                 "A reference book",
                 LocalDate.of(2011,4,20),
                 new BigDecimal("38.93"),
-                "Reference book"
+                new Genre("Reference book")
         );
         book.addAuthor(author);
 
@@ -235,7 +236,7 @@ public class AuthorServiceTests {
                 "A reference book",
                 LocalDate.of(2011,4,20),
                 new BigDecimal("38.93"),
-                "Reference book"
+                new Genre("Reference book")
         );
         bookBeforeUpdate.setBookId(42L);
         bookBeforeUpdate.addAuthor(authorToBeUpdated);
@@ -246,7 +247,7 @@ public class AuthorServiceTests {
                 "A book after an update",
                 LocalDate.of(2011,4,20),
                 new BigDecimal("38.93"),
-                "Horror"
+                new Genre("Horror")
         );
         bookAfterUpdate.setBookId(43L);
         bookAfterUpdate.addAuthor(author);
@@ -283,7 +284,7 @@ public class AuthorServiceTests {
                 "A reference book",
                 LocalDate.of(2011,4,20),
                 new BigDecimal("38.93"),
-                "Reference book"
+                new Genre("Reference book")
         );
         bookBeforeUpdate.setBookId(42L);
         bookBeforeUpdate.addAuthor(authorToBeUpdated);
@@ -315,7 +316,7 @@ public class AuthorServiceTests {
                 "A reference book",
                 LocalDate.of(2011,4,20),
                 new BigDecimal("38.93"),
-                "Reference book"
+                new Genre("Reference book")
         );
         bookBeforeUpdate.setBookId(42L);
         bookBeforeUpdate.addAuthor(authorToBeUpdated);

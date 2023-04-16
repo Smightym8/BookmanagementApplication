@@ -14,7 +14,11 @@
         <property name="title" column="title" type="java.lang.String" />
         <property name="publicationDate" column="publication_date" type="java.time.LocalDate" />
         <property name="price" column="price" type="java.math.BigDecimal" />
-        <property name="genre" column="genre" type="java.lang.String" />
+
+        <many-to-one name="genre" class="at.fhv.msp.bookmanagementapplication.domain.model.Genre"
+                     fetch="select" cascade="save-update" lazy="false">
+            <column name="genre_id_fk" not-null="true" />
+        </many-to-one>
 
         <set name="authors" table="written_by" lazy="true" fetch="select" cascade="save-update">
             <key column="book_id"/>
