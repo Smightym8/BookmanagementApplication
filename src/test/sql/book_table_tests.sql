@@ -1,5 +1,5 @@
 BEGIN;
-SELECT plan( 15 );
+SELECT plan( 16 );
 
 -- Test table and columns
 SELECT has_table( 'book' );
