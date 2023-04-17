@@ -1,5 +1,5 @@
 BEGIN;
-SELECT plan( 14 );
+SELECT plan( 15 );
 
 -- Test table and columns
 SELECT has_table( 'book' );
@@ -14,6 +14,8 @@ SELECT has_column( 'book', 'genre_id_fk' );
 -- Test keys
 SELECT col_is_pk( 'book', 'book_id' );
 SELECT col_is_fk( 'book', 'genre_id_fk' );
+
+-- Test relationships
 SELECT fk_ok( 'book', 'genre_id_fk', 'genre', 'genre_id' );
 
 -- Test constraints
@@ -33,6 +35,15 @@ SELECT throws_ok(
     'test_isbn_unique',
     '23505',
     'duplicate key value violates unique constraint "unique_book_isbn"'
+);
+
+-- Test referential integrity
+PREPARE test_genre_id_fk_valid AS INSERT INTO book (isbn, title, publication_date, price, genre_id_fk)
+VALUES ('1234567891010', 'title', '2017-03-14', 22.00, 200);
+SELECT throws_like(
+   'test_genre_id_fk_valid',
+   '%"book_genre_id_fk"',
+   'Expected error for referential integrity of genre_id_fk'
 );
 
 -- Check if appropriate genre id is set after migration
