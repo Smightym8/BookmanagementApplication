@@ -10,6 +10,7 @@ SELECT has_column( 'book', 'title' );
 SELECT has_column( 'book', 'publication_date' );
 SELECT has_column( 'book', 'price' );
 SELECT has_column( 'book', 'genre_id_fk' );
+SELECT hasnt_column( 'book', 'genre' ); -- To verify that column does not exist anymore after migration
 
 -- Test keys
 SELECT col_is_pk( 'book', 'book_id' );
